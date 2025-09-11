@@ -348,29 +348,9 @@ body {
 /* Article Grid */
 .article-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--zd-spacing-lg);
     margin: var(--zd-spacing-lg) 0;
-    max-width: 100%;
-    width: 100%;
-    align-items: start;
-}
-
-/* Ensure grid doesn't break on very wide screens */
-@media (min-width: 1400px) {
-    .article-grid {
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        max-width: 1200px;
-        margin: var(--zd-spacing-lg) auto;
-    }
-}
-
-/* Prevent too many columns on extremely wide screens */
-@media (min-width: 1800px) {
-    .article-grid {
-        grid-template-columns: repeat(4, 1fr);
-        max-width: 1400px;
-    }
 }
 
 .article-list {
@@ -380,6 +360,7 @@ body {
 
 /* Article Cards - Fully Clickable */
 .article-card {
+    display: block;
     background: var(--zd-color-background-primary);
     border: 1px solid var(--zd-color-border-primary);
     border-radius: var(--zd-border-radius-lg);
