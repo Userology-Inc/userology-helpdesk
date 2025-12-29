@@ -530,6 +530,19 @@ a:hover {
     border-radius: 50%;
 }
 
+/* Compact list style - horizontal multi-column layout */
+.article-content ul.compact-list {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--u-space-6);
+    margin-bottom: var(--u-space-4);
+}
+
+.article-content ul.compact-list li {
+    padding-left: var(--u-space-4);
+    min-width: 150px;
+}
+
 .article-content ol {
     counter-reset: list-counter;
     list-style: none;
@@ -557,6 +570,27 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Nested UL inside OL should use blue bullets, not numbers */
+.article-content ol li ul {
+    counter-reset: none;
+    margin-top: var(--u-space-3);
+    margin-bottom: var(--u-space-3);
+}
+
+.article-content ol li ul li {
+    counter-increment: none;
+    padding-left: var(--u-space-6);
+}
+
+.article-content ol li ul li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--u-color-primary);
+    border-radius: 50%;
+    top: 0.6em;
 }
 
 /* Video Container */
