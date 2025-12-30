@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { title: "Creating a Study in Userology", href: "article_25457016697629.html", category: "Study Setup" },
         { title: "Configuring the AI Moderator in Userology", href: "article_25562045316637.html", category: "Study Settings" },
         { title: "Configuring Question Probes in Userology", href: "article_25562114444061.html", category: "Study Settings" },
+        { title: "Recordings: Review and Manage Your Study Sessions", href: "article_recordings.html", category: "Responses and Recordings" },
         { title: "Overview of Managing Study Respondents in Userology", href: "article_25561689734941.html", category: "Respondent Management" },
         { title: "How to Manage Respondent Participation in Userology Studies", href: "article_25561782334749.html", category: "Respondent Management" },
         { title: "Creating and Managing Quotes in Userology", href: "article_25562126820125.html", category: "Responses and Recordings" },
