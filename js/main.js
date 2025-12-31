@@ -1053,34 +1053,78 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function highlightText(container, feedback) {
+        const searchText = feedback.selectedText.trim();
+        if (!searchText) return;
+
+        // More robust search that handles newlines and multiple spaces
+        const normalizedSearch = searchText.replace(/\s+/g, ' ');
+
         const walker = document.createTreeWalker(
             container,
             NodeFilter.SHOW_TEXT,
-            null
+            null,
+            false
         );
 
-        const textNodes = [];
         let node;
+        let allText = '';
+        const nodes = [];
+        const nodeOffsets = [];
+
         while (node = walker.nextNode()) {
-            textNodes.push(node);
+            nodeOffsets.push(allText.length);
+            nodes.push(node);
+            allText += node.textContent;
         }
 
-        for (let textNode of textNodes) {
-            const text = textNode.textContent;
-            const index = text.indexOf(feedback.selectedText);
+        // Try exact match first, then normalized match
+        let index = allText.indexOf(searchText);
+        let matchLength = searchText.length;
 
-            if (index !== -1) {
+        if (index === -1) {
+            // Try matching normalized text (collapsing spaces/newlines)
+            const normalizedAll = allText.replace(/\s+/g, ' ');
+            const normIndex = normalizedAll.indexOf(normalizedSearch);
+            
+            if (normIndex !== -1) {
+                // We found a normalized match, now we need to find the start/end in original text
+                // This is a bit complex, so we'll use a simpler approach for now:
+                // Find the first few words of the search text in the original text
+                const firstWords = normalizedSearch.split(' ').slice(0, 3).join(' ');
+                index = allText.indexOf(firstWords);
+                // Guess length based on character count (imperfect but better than nothing)
+                matchLength = searchText.length; 
+            }
+        }
+
+        if (index !== -1) {
+            try {
                 const range = document.createRange();
-                range.setStart(textNode, index);
-                range.setEnd(textNode, index + feedback.selectedText.length);
-
-                const mark = document.createElement('mark');
-                mark.className = 'feedback-highlight';
-                mark.dataset.feedbackId = feedback.id;
-                mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
                 
-                try {
-                    range.surroundContents(mark);
+                // Find start node
+                let startNodeIdx = nodeOffsets.findIndex((offset, i) => 
+                    offset <= index && (i === nodeOffsets.length - 1 || nodeOffsets[i+1] > index)
+                );
+                
+                // Find end node
+                let endPos = index + matchLength;
+                let endNodeIdx = nodeOffsets.findIndex((offset, i) => 
+                    offset <= endPos && (i === nodeOffsets.length - 1 || nodeOffsets[i+1] > endPos)
+                );
+
+                if (startNodeIdx !== -1 && endNodeIdx !== -1) {
+                    range.setStart(nodes[startNodeIdx], index - nodeOffsets[startNodeIdx]);
+                    range.setEnd(nodes[endNodeIdx], endPos - nodeOffsets[endNodeIdx]);
+
+                    const mark = document.createElement('mark');
+                    mark.className = 'feedback-highlight';
+                    mark.dataset.feedbackId = feedback.id;
+                    mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
+                    
+                    // surroundContents fails if range spans tags, so use extractContents
+                    const content = range.extractContents();
+                    mark.appendChild(content);
+                    range.insertNode(mark);
                     
                     // Add click handler
                     mark.addEventListener('click', (e) => {
@@ -1090,11 +1134,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Add hover preview
                     mark.title = `💬 ${feedback.comment.substring(0, 100)}${feedback.comment.length > 100 ? '...' : ''}`;
-                    
-                    break; // Only highlight first occurrence
-                } catch (err) {
-                    console.warn('Could not highlight text:', err);
                 }
+            } catch (err) {
+                console.warn('Could not highlight text across nodes:', err);
+                // Fallback to simple single-node search if multi-node fails
+                simpleHighlightFallback(container, feedback);
+            }
+        }
+    }
+
+    function simpleHighlightFallback(container, feedback) {
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+        let node;
+        while (node = walker.nextNode()) {
+            const text = node.textContent;
+            const index = text.indexOf(feedback.selectedText);
+            if (index !== -1) {
+                const range = document.createRange();
+                range.setStart(node, index);
+                range.setEnd(node, index + feedback.selectedText.length);
+                const mark = document.createElement('mark');
+                mark.className = 'feedback-highlight';
+                mark.dataset.feedbackId = feedback.id;
+                mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
+                try {
+                    range.surroundContents(mark);
+                    mark.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showCommentPopover(mark, feedback);
+                    });
+                } catch (e) {}
+                break;
             }
         }
     }
