@@ -765,7 +765,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ====================================
     // P1-5: MOBILE SIDEBAR
     // ====================================
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const mobileSidebar = document.querySelector('.mobile-sidebar');
     const mobileSidebarOverlay = document.querySelector('.mobile-sidebar-overlay');
     const mobileSidebarClose = document.querySelector('.mobile-sidebar-close');
@@ -782,9 +781,562 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = '';
     }
 
-    mobileMenuBtn?.addEventListener('click', openMobileSidebar);
+    const mobileMenuBtnSidebar = document.querySelector('.mobile-menu-btn');
+    mobileMenuBtnSidebar?.addEventListener('click', openMobileSidebar);
     mobileSidebarClose?.addEventListener('click', closeMobileSidebar);
     mobileSidebarOverlay?.addEventListener('click', closeMobileSidebar);
+
+    // ====================================
+    // FEEDBACK SYSTEM - Editorial Comments
+    // ====================================
+    
+    // Configuration
+    const FEEDBACK_CONFIG = {
+        passphrase: 'userology2025',
+        authorEmail: 'anurag@userology.co',
+        highlightColor: '#FEF3C7',
+        keyboardShortcut: 'F'
+    };
+
+    // State
+    let feedbackModeActive = false;
+    let feedbackData = {};
+    let currentArticle = window.location.pathname.split('/').pop();
+
+    // Load feedback data
+    async function loadFeedbackData() {
+        try {
+            const response = await fetch('feedback.json');
+            if (response.ok) {
+                feedbackData = await response.json();
+                delete feedbackData._meta; // Remove metadata
+            }
+        } catch (err) {
+            console.log('No feedback data available');
+            feedbackData = {};
+        }
+    }
+
+    // Check if feedback mode is enabled
+    function isFeedbackModeEnabled() {
+        return localStorage.getItem('feedbackModeEnabled') === 'true';
+    }
+
+    // Passphrase prompt
+    function promptPassphrase() {
+        const modal = document.createElement('div');
+        modal.className = 'feedback-passphrase-modal';
+        modal.innerHTML = `
+            <div class="feedback-passphrase-content">
+                <h3>🔒 Feedback Mode</h3>
+                <p>Enter passphrase to activate editorial feedback:</p>
+                <input type="password" class="feedback-passphrase-input" placeholder="Enter passphrase">
+                <div class="feedback-passphrase-error"></div>
+                <div class="feedback-passphrase-buttons">
+                    <button class="feedback-passphrase-cancel">Cancel</button>
+                    <button class="feedback-passphrase-submit">Activate</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const input = modal.querySelector('.feedback-passphrase-input');
+        const errorDiv = modal.querySelector('.feedback-passphrase-error');
+        const submitBtn = modal.querySelector('.feedback-passphrase-submit');
+        const cancelBtn = modal.querySelector('.feedback-passphrase-cancel');
+
+        input.focus();
+
+        function checkPassphrase() {
+            const value = input.value;
+            if (value === FEEDBACK_CONFIG.passphrase) {
+                localStorage.setItem('feedbackModeEnabled', 'true');
+                modal.remove();
+                activateFeedbackMode();
+            } else {
+                errorDiv.textContent = 'Incorrect passphrase';
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        submitBtn.addEventListener('click', checkPassphrase);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkPassphrase();
+            }
+        });
+
+        cancelBtn.addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+    }
+
+    // Toggle feedback mode
+    function toggleFeedbackMode() {
+        if (!isFeedbackModeEnabled()) {
+            promptPassphrase();
+        } else {
+            if (feedbackModeActive) {
+                deactivateFeedbackMode();
+            } else {
+                activateFeedbackMode();
+            }
+        }
+    }
+
+    // Activate feedback mode
+    async function activateFeedbackMode() {
+        feedbackModeActive = true;
+        await loadFeedbackData();
+        
+        // Show feedback mode badge
+        let badge = document.querySelector('.feedback-mode-badge');
+        if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'feedback-mode-badge';
+            badge.innerHTML = '🔧 Feedback Mode <button class="feedback-mode-close">&times;</button>';
+            document.body.appendChild(badge);
+
+            badge.querySelector('.feedback-mode-close').addEventListener('click', toggleFeedbackMode);
+        }
+        badge.style.display = 'flex';
+
+        // Show export button
+        let exportBtn = document.querySelector('.feedback-export-btn');
+        if (!exportBtn) {
+            exportBtn = document.createElement('button');
+            exportBtn.className = 'feedback-export-btn';
+            exportBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export Feedback
+            `;
+            document.body.appendChild(exportBtn);
+            exportBtn.addEventListener('click', exportFeedbackData);
+        }
+        exportBtn.style.display = 'flex';
+
+        // Render highlights
+        renderHighlights();
+
+        // Enable text selection
+        enableTextSelection();
+
+        console.log('Feedback mode activated');
+    }
+
+    // Deactivate feedback mode
+    function deactivateFeedbackMode() {
+        feedbackModeActive = false;
+
+        // Hide badge and export button
+        const badge = document.querySelector('.feedback-mode-badge');
+        const exportBtn = document.querySelector('.feedback-export-btn');
+        if (badge) badge.style.display = 'none';
+        if (exportBtn) exportBtn.style.display = 'none';
+
+        // Remove all highlights
+        document.querySelectorAll('.feedback-highlight').forEach(mark => {
+            const parent = mark.parentNode;
+            parent.replaceChild(document.createTextNode(mark.textContent), mark);
+            parent.normalize();
+        });
+
+        // Remove tooltip
+        const tooltip = document.querySelector('.feedback-selection-tooltip');
+        if (tooltip) tooltip.remove();
+
+        // Disable text selection
+        disableTextSelection();
+
+        console.log('Feedback mode deactivated');
+    }
+
+    // Text selection handling
+    let selectionHandler = null;
+
+    function enableTextSelection() {
+        const articleContent = document.querySelector('.article-content');
+        if (!articleContent) return;
+
+        selectionHandler = function(e) {
+            // Small delay to ensure selection is complete
+            setTimeout(() => {
+                const selection = window.getSelection();
+                const selectedText = selection.toString().trim();
+
+                if (selectedText.length > 0 && selectedText.length < 500) {
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    
+                    showSelectionTooltip(rect, selectedText, selection, range);
+                } else {
+                    hideSelectionTooltip();
+                }
+            }, 10);
+        };
+
+        articleContent.addEventListener('mouseup', selectionHandler);
+    }
+
+    function disableTextSelection() {
+        const articleContent = document.querySelector('.article-content');
+        if (articleContent && selectionHandler) {
+            articleContent.removeEventListener('mouseup', selectionHandler);
+        }
+    }
+
+    function showSelectionTooltip(rect, selectedText, selection, range) {
+        hideSelectionTooltip();
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'feedback-selection-tooltip';
+        tooltip.innerHTML = `
+            <button class="feedback-add-comment-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Add Feedback
+            </button>
+        `;
+
+        document.body.appendChild(tooltip);
+
+        // Position tooltip
+        const scrollY = window.scrollY || window.pageYOffset;
+        const scrollX = window.scrollX || window.pageXOffset;
+        
+        tooltip.style.position = 'absolute';
+        tooltip.style.left = (rect.left + scrollX + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+        tooltip.style.top = (rect.top + scrollY - tooltip.offsetHeight - 8) + 'px';
+
+        // Add click handler
+        tooltip.querySelector('.feedback-add-comment-btn').addEventListener('click', () => {
+            openCommentModal(selectedText);
+            selection.removeAllRanges();
+            hideSelectionTooltip();
+        });
+
+        // Hide on click outside
+        setTimeout(() => {
+            document.addEventListener('click', function hideOnClick(e) {
+                if (!tooltip.contains(e.target)) {
+                    hideSelectionTooltip();
+                    document.removeEventListener('click', hideOnClick);
+                }
+            });
+        }, 100);
+    }
+
+    function hideSelectionTooltip() {
+        const tooltip = document.querySelector('.feedback-selection-tooltip');
+        if (tooltip) tooltip.remove();
+    }
+
+    // Render highlights
+    function renderHighlights() {
+        const articleContent = document.querySelector('.article-content');
+        if (!articleContent) return;
+
+        const articleFeedback = feedbackData[currentArticle] || [];
+        const openFeedback = articleFeedback.filter(f => f.status === 'open');
+
+        openFeedback.forEach(feedback => {
+            highlightText(articleContent, feedback);
+        });
+    }
+
+    function highlightText(container, feedback) {
+        const walker = document.createTreeWalker(
+            container,
+            NodeFilter.SHOW_TEXT,
+            null
+        );
+
+        const textNodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            textNodes.push(node);
+        }
+
+        for (let textNode of textNodes) {
+            const text = textNode.textContent;
+            const index = text.indexOf(feedback.selectedText);
+
+            if (index !== -1) {
+                const range = document.createRange();
+                range.setStart(textNode, index);
+                range.setEnd(textNode, index + feedback.selectedText.length);
+
+                const mark = document.createElement('mark');
+                mark.className = 'feedback-highlight';
+                mark.dataset.feedbackId = feedback.id;
+                mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
+                
+                try {
+                    range.surroundContents(mark);
+                    
+                    // Add click handler
+                    mark.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showCommentPopover(mark, feedback);
+                    });
+
+                    // Add hover preview
+                    mark.title = `💬 ${feedback.comment.substring(0, 100)}${feedback.comment.length > 100 ? '...' : ''}`;
+                    
+                    break; // Only highlight first occurrence
+                } catch (err) {
+                    console.warn('Could not highlight text:', err);
+                }
+            }
+        }
+    }
+
+    // Comment modal
+    function openCommentModal(selectedText) {
+        const modal = document.createElement('div');
+        modal.className = 'feedback-comment-modal';
+        modal.innerHTML = `
+            <div class="feedback-comment-content">
+                <div class="feedback-comment-header">
+                    <h3>Add Feedback</h3>
+                    <button class="feedback-comment-close">&times;</button>
+                </div>
+                <div class="feedback-selected-text">
+                    <strong>Selected text:</strong>
+                    <p>"${selectedText}"</p>
+                </div>
+                <textarea class="feedback-comment-textarea" placeholder="Enter your feedback or suggestions..." rows="4"></textarea>
+                <div class="feedback-comment-footer">
+                    <button class="feedback-comment-cancel">Cancel</button>
+                    <button class="feedback-comment-save">Save Feedback</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const textarea = modal.querySelector('.feedback-comment-textarea');
+        const saveBtn = modal.querySelector('.feedback-comment-save');
+        const cancelBtn = modal.querySelector('.feedback-comment-cancel');
+        const closeBtn = modal.querySelector('.feedback-comment-close');
+
+        textarea.focus();
+
+        function closeModal() {
+            modal.remove();
+        }
+
+        function saveFeedback() {
+            const comment = textarea.value.trim();
+            if (comment.length === 0) {
+                alert('Please enter a comment');
+                return;
+            }
+
+            // Create feedback object
+            const feedback = {
+                id: 'fb_' + Date.now(),
+                selectedText: selectedText,
+                comment: comment,
+                author: FEEDBACK_CONFIG.authorEmail,
+                createdAt: new Date().toISOString(),
+                status: 'open'
+            };
+
+            // Add to data
+            if (!feedbackData[currentArticle]) {
+                feedbackData[currentArticle] = [];
+            }
+            feedbackData[currentArticle].push(feedback);
+
+            // Re-render highlights
+            const articleContent = document.querySelector('.article-content');
+            if (articleContent) {
+                highlightText(articleContent, feedback);
+            }
+
+            closeModal();
+            
+            // Show success message
+            showNotification('Feedback added! Don\'t forget to export and commit changes.', 'success');
+        }
+
+        saveBtn.addEventListener('click', saveFeedback);
+        cancelBtn.addEventListener('click', closeModal);
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    }
+
+    // Comment popover
+    function showCommentPopover(highlightElement, feedback) {
+        // Remove existing popovers
+        document.querySelectorAll('.feedback-comment-popover').forEach(p => p.remove());
+
+        const popover = document.createElement('div');
+        popover.className = 'feedback-comment-popover';
+        popover.innerHTML = `
+            <div class="feedback-popover-header">
+                <strong>💬 Feedback</strong>
+                <button class="feedback-popover-close">&times;</button>
+            </div>
+            <div class="feedback-popover-text">"${feedback.selectedText}"</div>
+            <div class="feedback-popover-comment">${feedback.comment}</div>
+            <div class="feedback-popover-meta">
+                <span>${feedback.author}</span>
+                <span>${new Date(feedback.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div class="feedback-popover-actions">
+                <button class="feedback-popover-resolve">✓ Resolve</button>
+                <button class="feedback-popover-delete">Delete</button>
+            </div>
+        `;
+
+        document.body.appendChild(popover);
+
+        // Position popover
+        const rect = highlightElement.getBoundingClientRect();
+        const scrollY = window.scrollY || window.pageYOffset;
+        const scrollX = window.scrollX || window.pageXOffset;
+
+        popover.style.position = 'absolute';
+        popover.style.left = (rect.left + scrollX) + 'px';
+        popover.style.top = (rect.bottom + scrollY + 8) + 'px';
+
+        // Adjust if off-screen
+        setTimeout(() => {
+            const popoverRect = popover.getBoundingClientRect();
+            if (popoverRect.right > window.innerWidth) {
+                popover.style.left = (window.innerWidth - popoverRect.width - 20 + scrollX) + 'px';
+            }
+        }, 0);
+
+        // Event handlers
+        popover.querySelector('.feedback-popover-close').addEventListener('click', () => {
+            popover.remove();
+        });
+
+        popover.querySelector('.feedback-popover-resolve').addEventListener('click', () => {
+            resolveFeedback(feedback.id);
+            popover.remove();
+        });
+
+        popover.querySelector('.feedback-popover-delete').addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete this feedback?')) {
+                deleteFeedback(feedback.id);
+                popover.remove();
+            }
+        });
+
+        // Close on click outside
+        setTimeout(() => {
+            document.addEventListener('click', function closePopover(e) {
+                if (!popover.contains(e.target) && !highlightElement.contains(e.target)) {
+                    popover.remove();
+                    document.removeEventListener('click', closePopover);
+                }
+            });
+        }, 100);
+    }
+
+    // Resolve feedback
+    function resolveFeedback(feedbackId) {
+        const articleFeedback = feedbackData[currentArticle] || [];
+        const feedback = articleFeedback.find(f => f.id === feedbackId);
+        
+        if (feedback) {
+            feedback.status = 'resolved';
+            
+            // Remove highlight
+            const highlight = document.querySelector(`[data-feedback-id="${feedbackId}"]`);
+            if (highlight) {
+                const parent = highlight.parentNode;
+                parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+                parent.normalize();
+            }
+
+            showNotification('Feedback resolved! Don\'t forget to export changes.', 'success');
+        }
+    }
+
+    // Delete feedback
+    function deleteFeedback(feedbackId) {
+        const articleFeedback = feedbackData[currentArticle] || [];
+        const index = articleFeedback.findIndex(f => f.id === feedbackId);
+        
+        if (index !== -1) {
+            articleFeedback.splice(index, 1);
+            
+            // Remove highlight
+            const highlight = document.querySelector(`[data-feedback-id="${feedbackId}"]`);
+            if (highlight) {
+                const parent = highlight.parentNode;
+                parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+                parent.normalize();
+            }
+
+            showNotification('Feedback deleted! Don\'t forget to export changes.', 'warning');
+        }
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `feedback-notification feedback-notification-${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+
+    // Export feedback data
+    function exportFeedbackData() {
+        // Add metadata
+        const exportData = {
+            _meta: {
+                version: '1.0.0',
+                lastUpdated: new Date().toISOString(),
+                description: 'Editorial feedback for help desk articles. Managed internally by team members.'
+            },
+            ...feedbackData
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        const timestamp = new Date().toISOString().split('T')[0];
+        a.download = `feedback_${timestamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showNotification('Feedback exported! Replace feedback.json with this file and commit to Git.', 'success');
+    }
+
+    // Global keyboard shortcut for feedback mode
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === FEEDBACK_CONFIG.keyboardShortcut.toLowerCase()) {
+            e.preventDefault();
+            toggleFeedbackMode();
+        }
+    });
 
     // ====================================
     // ALL ARTICLES PAGE - Search, Filter, Sort
