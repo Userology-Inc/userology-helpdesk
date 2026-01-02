@@ -806,14 +806,53 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load feedback data
     async function loadFeedbackData() {
         try {
+            // First, load from localStorage (imported data)
+            const localData = localStorage.getItem('imported_feedback_cache');
+            let mergedData = {};
+            
+            if (localData) {
+                try {
+                    mergedData = JSON.parse(localData);
+                } catch (e) {
+                    console.error('Error parsing local feedback data', e);
+                }
+            }
+
+            // Then fetch server data and merge
             const response = await fetch('feedback.json?t=' + new Date().getTime());
             if (response.ok) {
-                feedbackData = await response.json();
-                delete feedbackData._meta; // Remove metadata
+                const serverData = await response.json();
+                delete serverData._meta; // Remove metadata
+                
+                // Merge logic: server data takes precedence for same IDs, but we keep local additions
+                Object.keys(serverData).forEach(key => {
+                    if (!mergedData[key]) {
+                        mergedData[key] = [];
+                    }
+                    
+                    const existingIds = new Set(mergedData[key].map(f => f.id));
+                    serverData[key].forEach(item => {
+                        if (!existingIds.has(item.id)) {
+                            mergedData[key].push(item);
+                        } else {
+                            // Update existing item
+                            const idx = mergedData[key].findIndex(f => f.id === item.id);
+                            if (idx !== -1) mergedData[key][idx] = item;
+                        }
+                    });
+                });
             }
+            
+            feedbackData = mergedData;
         } catch (err) {
-            console.log('No feedback data available');
+            console.log('No feedback data available or error loading', err);
+            // Fallback to local data if server fetch fails
+            const localData = localStorage.getItem('imported_feedback_cache');
+            if (localData) {
+                feedbackData = JSON.parse(localData);
+            } else {
             feedbackData = {};
+            }
         }
     }
 
@@ -1413,6 +1452,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (data._meta) delete data._meta;
                         
                         // Merge logic: Add imported feedback to current state
+                        let updatedPages = [];
                         Object.keys(data).forEach(key => {
                             if (!feedbackData[key]) {
                                 feedbackData[key] = [];
@@ -1420,17 +1460,35 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             // Add only unique feedback (by ID)
                             const existingIds = new Set(feedbackData[key].map(f => f.id));
+                            let hasNewItems = false;
                             
                             data[key].forEach(item => {
                                 if (!existingIds.has(item.id)) {
                                     feedbackData[key].push(item);
+                                    hasNewItems = true;
                                 }
                             });
+                            
+                            if (hasNewItems) {
+                                updatedPages.push(key);
+                            }
                         });
+                        
+                        // Save to localStorage for persistence
+                        localStorage.setItem('imported_feedback_cache', JSON.stringify(feedbackData));
                         
                         // Re-render highlights
                         renderHighlights();
-                        showNotification('Feedback imported successfully!', 'success');
+                        
+                        // Show detailed notification
+                        if (updatedPages.length > 0) {
+                            const pageList = updatedPages.length > 3 
+                                ? `${updatedPages.slice(0, 3).join(', ')} and ${updatedPages.length - 3} more`
+                                : updatedPages.join(', ');
+                            showNotification(`Feedback imported for: ${pageList}. It is now saved to your browser storage.`, 'success');
+                        } else {
+                            showNotification('Feedback imported! No new unique items found.', 'info');
+                        }
                     } else {
                         throw new Error('Invalid JSON structure');
                     }
