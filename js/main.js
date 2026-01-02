@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { title: "Previewing Recorded Responses in Userology", href: "article_25562210431261.html", category: "Responses and Recordings" },
         { title: "Exporting Recorded Responses from Userology", href: "article_25562216141213.html", category: "Responses and Recordings" },
         { title: "AI Synthesis Studio: How to Use It", href: "article_ai_synthesis_studio.html", category: "Results and Reports" },
+        { title: "Understanding the Results Section in Userology", href: "article_results_section.html", category: "Results and Reports" },
         { title: "Understanding Qualitative results section in Userology", href: "article_25916667142045.html", category: "Results and Reports" },
         { title: "Understanding the Dashboard in Userology", href: "article_25562265024797.html", category: "Results and Reports" },
         { title: "Viewing AI Summaries in Userology", href: "article_25562272476829.html", category: "Results and Reports" },
