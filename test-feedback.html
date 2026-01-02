@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback System Test</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="header-branding">
+                    <img src="logo.png" alt="Userology Logo" class="header-logo">
+                    <div class="header-text">
+                        <h1>Feedback System Test</h1>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="main">
+            <div class="content">
+                <h1>Test Feedback System</h1>
+                
+                <div class="article-content">
+                    <h2>Instructions</h2>
+                    <p>Press <strong>Ctrl+Shift+F</strong> (or Cmd+Shift+F on Mac) to activate feedback mode.</p>
+                    <p>The passphrase is: <code>userology2025</code></p>
+                    
+                    <h2>Sample Text to Highlight</h2>
+                    <p>This is a sample paragraph that you can select and add feedback to. Try selecting this text and see if the feedback tooltip appears.</p>
+                    
+                    <p>Here's another paragraph with some interesting content. You can highlight any portion of this text and add your editorial comments.</p>
+                    
+                    <h3>What Should Happen</h3>
+                    <ol>
+                        <li>Press Ctrl+Shift+F</li>
+                        <li>Enter passphrase: userology2025</li>
+                        <li>See "🔧 Feedback Mode" badge in top-right</li>
+                        <li>See "Export Feedback" button in bottom-right</li>
+                        <li>Select any text above</li>
+                        <li>Click "Add Feedback" tooltip</li>
+                        <li>Write a comment and save</li>
+                        <li>Text should be highlighted in yellow</li>
+                    </ol>
+
+                    <h3>Debugging</h3>
+                    <p>Open browser console (F12) and check for:</p>
+                    <ul>
+                        <li>Any JavaScript errors</li>
+                        <li>"Userology Help Center JS loaded successfully" message</li>
+                        <li>"Feedback mode activated" when you press Ctrl+Shift+F</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    
+    <script>
+        // Debug script to verify keyboard events are working
+        console.log('Test page loaded');
+        console.log('Press Ctrl+Shift+F to test feedback mode');
+        
+        // Test if basic keyboard events work
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey) {
+                console.log('Ctrl+Shift detected, key:', e.key);
+            }
+        });
+    </script>
+</body>
+</html>
+
