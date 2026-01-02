@@ -3707,6 +3707,38 @@ input:focus-visible {
     flex-shrink: 0;
 }
 
+/* Import Button */
+.feedback-import-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 220px; /* Positioned to the left of export button */
+    background: white;
+    color: var(--u-color-primary);
+    border: 1px solid var(--u-color-border);
+    padding: var(--u-space-4) var(--u-space-6);
+    border-radius: var(--u-radius-full);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: var(--u-space-2);
+    box-shadow: var(--u-shadow-lg);
+    z-index: 9999;
+    transition: all 0.2s;
+}
+
+.feedback-import-btn:hover {
+    border-color: var(--u-color-primary);
+    background: var(--u-color-bg-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -4px rgba(0, 87, 255, 0.15);
+}
+
+.feedback-import-btn svg {
+    flex-shrink: 0;
+}
+
 /* Notification */
 .feedback-notification {
     position: fixed;

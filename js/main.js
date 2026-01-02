@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load feedback data
     async function loadFeedbackData() {
         try {
-            const response = await fetch('feedback.json');
+            const response = await fetch('feedback.json?t=' + new Date().getTime());
             if (response.ok) {
                 feedbackData = await response.json();
                 delete feedbackData._meta; // Remove metadata
@@ -922,6 +922,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         exportBtn.style.display = 'flex';
 
+        // Show import button
+        let importBtn = document.querySelector('.feedback-import-btn');
+        if (!importBtn) {
+            importBtn = document.createElement('button');
+            importBtn.className = 'feedback-import-btn';
+            importBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Import Feedback
+            `;
+            document.body.appendChild(importBtn);
+            importBtn.addEventListener('click', importFeedbackData);
+        }
+        importBtn.style.display = 'flex';
+
         // Render highlights
         renderHighlights();
 
@@ -938,8 +956,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide badge and export button
         const badge = document.querySelector('.feedback-mode-badge');
         const exportBtn = document.querySelector('.feedback-export-btn');
+        const importBtn = document.querySelector('.feedback-import-btn');
         if (badge) badge.style.display = 'none';
         if (exportBtn) exportBtn.style.display = 'none';
+        if (importBtn) importBtn.style.display = 'none';
 
         // Remove all highlights
         document.querySelectorAll('.feedback-highlight').forEach(mark => {
@@ -1370,6 +1390,59 @@ document.addEventListener('DOMContentLoaded', function() {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
         }, 4000);
+    }
+
+    // Import feedback data
+    function importFeedbackData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = event => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    // Basic validation
+                    if (typeof data === 'object') {
+                        // Merge with existing feedback
+                        // Remove metadata from import if present
+                        if (data._meta) delete data._meta;
+                        
+                        // Merge logic: Add imported feedback to current state
+                        Object.keys(data).forEach(key => {
+                            if (!feedbackData[key]) {
+                                feedbackData[key] = [];
+                            }
+                            
+                            // Add only unique feedback (by ID)
+                            const existingIds = new Set(feedbackData[key].map(f => f.id));
+                            
+                            data[key].forEach(item => {
+                                if (!existingIds.has(item.id)) {
+                                    feedbackData[key].push(item);
+                                }
+                            });
+                        });
+                        
+                        // Re-render highlights
+                        renderHighlights();
+                        showNotification('Feedback imported successfully!', 'success');
+                    } else {
+                        throw new Error('Invalid JSON structure');
+                    }
+                } catch (err) {
+                    console.error('Import error:', err);
+                    showNotification('Failed to import feedback: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
     }
 
     // Export feedback data
