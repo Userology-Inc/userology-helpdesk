@@ -344,6 +344,14 @@ a:hover {
     color: var(--u-color-text-main);
 }
 
+/* Reset mark elements to prevent layout shift */
+.article-content mark {
+    padding: 0;
+    margin: 0;
+    display: inline;
+    line-height: inherit;
+}
+
 .article-content p {
     margin-bottom: var(--u-space-6);
 }
@@ -3428,9 +3436,13 @@ input:focus-visible {
 /* Highlight Styles */
 .feedback-highlight {
     background: #FEF3C7;
-    border-bottom: 2px wavy #F59E0B;
     cursor: pointer;
-    padding: 2px 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    text-decoration: underline wavy #F59E0B;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
     transition: background 0.2s;
 }
 
