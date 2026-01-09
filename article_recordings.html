@@ -7,6 +7,11 @@
     <title>Recordings: Review and Manage Your Study Sessions - Userology Help Center</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        h2[id], h3[id] {
+            scroll-margin-top: 100px;
+        }
+    </style>
     <meta name="description" content="Learn how to review participant session recordings, manage response types, exclude or discard sessions, and generate AI-powered results in Userology.">
 </head>
 <body>
@@ -61,81 +66,51 @@
                 </div>
                 
                 <div class="article-content">
-                    <p dir="ltr">Once your study is published and participants start taking part, all participant sessions are accessible in the <strong>Recordings</strong> section. This is where you can review recordings, evaluate session quality, and decide which sessions should be included before generating results.</p>
+                    <p dir="ltr">Once your study is published and participants start taking part, all participant sessions are accessible in the <strong>Recordings</strong> section.</p>
 
 <hr>
 
 <h2 id="h_accessing_recordings" dir="ltr">Accessing Recordings</h2>
 
-<p dir="ltr">To access session recordings, open your study and click <strong>Recordings</strong> from the left navigation pane.</p>
+<p dir="ltr">Open your study and click <strong>Recordings</strong> from the left navigation pane. Sessions are automatically organized based on their status and quality.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_7_access_recordings.gif" alt="Accessing Recordings from the left navigation pane"></p>
-
-<p dir="ltr">Here, you'll see all participant sessions, automatically organized based on their status and quality.</p>
 
 <hr>
 
 <h2 id="h_understanding_tabs" dir="ltr">Understanding the Recording Tabs</h2>
 
-<p dir="ltr">To help you quickly make sense of incoming data, sessions are grouped into clear categories:</p>
+<p dir="ltr">Sessions are grouped into the following categories:</p>
 
 <h3 id="h_preview_responses" dir="ltr">Preview Responses</h3>
 
-<p dir="ltr">These are test or dry-run sessions used to validate your study setup before launch.</p>
-
-<ul dir="ltr">
-<li><p dir="ltr"><strong>Not billed</strong></p></li>
-<li><p dir="ltr"><strong>Not included in results</strong></p></li>
-<li><p dir="ltr">Helpful for sanity-checking flow and instructions</p></li>
-</ul>
+<p dir="ltr">Test or dry-run sessions used to validate your study setup before launch. Not billed and not included in results—helpful for sanity-checking flow and instructions.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_5_preview_responses.png" alt="Preview responses tab showing test sessions"></p>
 
 <h3 id="h_study_responses" dir="ltr">Study Responses</h3>
 
-<p dir="ltr">These are valid, completed participant sessions.</p>
-
-<ul dir="ltr">
-<li><p dir="ltr"><strong>Fully completed</strong></p></li>
-<li><p dir="ltr"><strong>Included in analysis and results</strong></p></li>
-<li><p dir="ltr">Your analysis is based on these study sessions.</p></li>
-</ul>
+<p dir="ltr">Valid, fully completed participant sessions. Billed and included in analysis—your results are based on these sessions.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_6_study_responses.png" alt="Study responses tab showing completed sessions"></p>
 
 <h3 id="h_excluded_responses" dir="ltr">Excluded Responses</h3>
 
-<p dir="ltr">Sessions that encountered study setup issues (for example, technical or configuration problems).</p>
-
-<ul dir="ltr">
-<li><p dir="ltr"><strong>Billed</strong></p></li>
-<li><p dir="ltr"><strong>Not included in results</strong></p></li>
-<li><p dir="ltr">Automatically flagged to protect data quality</p></li>
-</ul>
+<p dir="ltr">Sessions that encountered study setup issues (e.g., technical or configuration problems). Billed but not included in results. These are automatically flagged to protect data quality.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_4_excluded_responses.png" alt="Excluded responses tab"></p>
 
 <h3 id="h_discarded_responses" dir="ltr">Discarded Responses</h3>
 
-<p dir="ltr">Sessions that were completed but later marked unusable due to poor quality or technical issues.</p>
+<p dir="ltr">Sessions completed but later marked unusable due to poor quality or technical issues. These are not billed and not included in results.</p>
 
-<ul dir="ltr">
-<li><p dir="ltr"><strong>Not billed</strong></p></li>
-<li><p dir="ltr"><strong>Not included in results</strong></p></li>
-<li><p dir="ltr">Can be discarded manually by you</p></li>
-</ul>
+<p dir="ltr"><strong>Note:</strong> You can manually discard sessions from the session view or overflow menu.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_3_discarded_responses.png" alt="Discarded responses tab"></p>
 
 <h3 id="h_incomplete_responses" dir="ltr">Incomplete Responses</h3>
 
-<p dir="ltr">Sessions where participants did not complete all sections.</p>
-
-<ul dir="ltr">
-<li><p dir="ltr"><strong>Not billed</strong></p></li>
-<li><p dir="ltr"><strong>Not included in results</strong></p></li>
-<li><p dir="ltr">Useful for identifying drop-offs or friction points</p></li>
-</ul>
+<p dir="ltr">Sessions where participants did not complete all sections. Not billed and not included in results.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_2_incomplete_responses.png" alt="Incomplete responses tab"></p>
 
@@ -143,89 +118,37 @@
 
 <h2 id="h_viewing_session" dir="ltr">Viewing a Session in Detail</h2>
 
-<p dir="ltr">Click <strong>View session</strong> on any participant row to open the full session view.</p>
-
-<p dir="ltr">From here, you can:</p>
-
-<ul dir="ltr">
-<li><p dir="ltr">Watch the session recording</p></li>
-<li><p dir="ltr">Read the transcript alongside the video</p></li>
-<li><p dir="ltr">Navigate by sections (Introduction, Tasks, Feedback, etc.)</p></li>
-<li><p dir="ltr">Review participant talk time and interaction flow</p></li>
-</ul>
+<p dir="ltr">Click <strong>View session</strong> on any participant row to open the full session view. Here you can watch the recording with the transcript alongside, navigate by sections (Introduction, Tasks, Feedback, etc.), and review participant talk time and interaction flow.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_1_session_view.png" alt="Session view with video player, transcript, and navigation"></p>
 
-<p dir="ltr">This view helps you deeply understand what the participant did, said, and struggled with—not just what they completed.</p>
+<p dir="ltr">This helps you understand not only what the participant completed, but also what they did, said, and where they encountered difficulties.</p>
 
 <hr>
 
 <h2 id="h_managing_sessions" dir="ltr">Managing Sessions Manually</h2>
 
-<p dir="ltr">You stay in full control of what goes into your analysis.</p>
-
-<p dir="ltr">From the session view or overflow menu, you can:</p>
-
-<ul dir="ltr">
-<li><p dir="ltr"><strong>Exclude session</strong> — Remove a session from analysis if it doesn't meet your study criteria</p></li>
-<li><p dir="ltr"><strong>Discard session</strong> — Mark sessions as unusable due to noise, irrelevance, or technical problems</p></li>
-</ul>
-
-<p dir="ltr">These actions help keep your results clean and ensure only relevant sessions are included.</p>
+<p dir="ltr">From the session view or overflow menu, you can <strong>Exclude</strong> a session (remove from analysis if it doesn't meet your criteria) or <strong>Discard</strong> it (mark as unusable due to noise, irrelevance, or technical problems). This keeps your results clean and ensures only relevant sessions are included.</p>
 
 <hr>
 
 <h2 id="h_download_share" dir="ltr">Downloading, Sharing, and Regenerating Insights</h2>
 
-<p dir="ltr">From the session view, you can also:</p>
-
-<ul dir="ltr">
-<li><p dir="ltr">Download session recordings</p></li>
-<li><p dir="ltr">Share sessions with teammates or stakeholders</p></li>
-<li><p dir="ltr">Regenerate session overviews or findings if needed</p></li>
-</ul>
-
-<p dir="ltr">This makes collaboration and re-analysis easy, even after sessions are completed.</p>
+<p dir="ltr">From the session view, you can download recordings, share sessions with teammates or stakeholders, and regenerate session overviews or findings if needed.</p>
 
 <hr>
 
 <h2 id="h_conclude_generate" dir="ltr">Conclude and Generate Results</h2>
 
-<p dir="ltr">When you're confident that your sessions are reviewed and curated, click the <strong>Conclude and Generate Results</strong> button in the top-right corner.</p>
+<p dir="ltr">When your sessions are reviewed and curated, click <strong>Conclude and Generate Results</strong> in the top-right corner. This concludes the study, generates structured insights, and makes results available in the <a href="article_results_section.html">Results section</a>.</p>
 
 <p style="text-align: center;" data-node-text-align="center"><img src="attachments/recordings_8_conclude_askai.png" alt="Recordings page showing Conclude and Generate Results button and Ask AI"></p>
-
-<p dir="ltr">This action:</p>
-
-<ul dir="ltr">
-<li><p dir="ltr">Concludes the study</p></li>
-<li><p dir="ltr">Generates detailed, structured insights</p></li>
-<li><p dir="ltr">Makes results available in the Results section</p></li>
-</ul>
-
-<p dir="ltr">Use this once you're ready to move from raw sessions to synthesized findings.</p>
 
 <hr>
 
 <h2 id="h_ask_ai" dir="ltr">Ask AI: Get Instant Insights from Your Study</h2>
 
-<p dir="ltr">The <strong>Ask AI</strong> button (visible in the bottom-right corner of the Recordings page) lets you interact with your study data conversationally.</p>
-
-<p dir="ltr">You can ask questions like:</p>
-
-<ul dir="ltr">
-<li><p dir="ltr">"What were the most common usability issues?"</p></li>
-<li><p dir="ltr">"Summarize participant feedback for Section 3"</p></li>
-<li><p dir="ltr">"What patterns emerged across sessions?"</p></li>
-</ul>
-
-<p dir="ltr">Ask AI helps you:</p>
-
-<ul dir="ltr">
-<li><p dir="ltr">Quickly surface insights</p></li>
-<li><p dir="ltr">Validate hypotheses</p></li>
-<li><p dir="ltr">Explore data without manual analysis</p></li>
-</ul>
+<p dir="ltr">The <strong>Ask AI</strong> button (bottom-right corner of the Recordings page) lets you interact with your study data conversationally. You can ask questions like "What were the most common usability issues?", "Summarize participant feedback for Section 3", or "What patterns emerged across sessions?" to quickly surface insights and validate your hypotheses.</p>
 
 <hr>
 
