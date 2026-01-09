@@ -1099,6 +1099,46 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tooltip) tooltip.remove();
     }
 
+    // Helper function to normalize text for comparison
+    function normalizeText(text) {
+        return text
+            .replace(/\s+/g, ' ')           // Collapse all whitespace to single space
+            .replace(/[\u00A0]/g, ' ')      // Replace non-breaking spaces
+            .trim();                        // Remove leading/trailing whitespace
+    }
+
+    // Helper function to create position mapping between original and normalized text
+    function createPositionMap(originalText) {
+        const normalized = normalizeText(originalText);
+        const map = []; // Maps normalized position to original position
+        let normPos = 0;
+        let origPos = 0;
+
+        while (origPos < originalText.length) {
+            const char = originalText[origPos];
+
+            if (/\s/.test(char)) {
+                // Whitespace in original - may collapse in normalized
+                const wsStart = origPos;
+                while (origPos < originalText.length && /\s/.test(originalText[origPos])) {
+                    origPos++;
+                }
+                // All whitespace maps to single space in normalized
+                if (normPos < normalized.length && normalized[normPos] === ' ') {
+                    map[normPos] = { start: wsStart, end: origPos, isWhitespace: true };
+                    normPos++;
+                }
+            } else {
+                // Non-whitespace character
+                map[normPos] = { start: origPos, end: origPos + 1, isWhitespace: false };
+                normPos++;
+                origPos++;
+            }
+        }
+
+        return { normalized, map };
+    }
+
     // Render highlights
     function renderHighlights() {
         const articleContent = document.querySelector('.article-content');
@@ -1107,17 +1147,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const articleFeedback = feedbackData[currentArticle] || [];
         const openFeedback = articleFeedback.filter(f => f.status === 'open');
 
+        let successCount = 0;
+        let failureCount = 0;
+        const failedFeedback = [];
+
         openFeedback.forEach(feedback => {
-            highlightText(articleContent, feedback);
+            const success = highlightText(articleContent, feedback);
+            if (success) {
+                successCount++;
+            } else {
+                failureCount++;
+                failedFeedback.push({
+                    id: feedback.id,
+                    text: feedback.selectedText.substring(0, 50) + '...',
+                    comment: feedback.comment.substring(0, 50) + '...'
+                });
+            }
         });
+
+        // Log failed highlights for debugging
+        if (failedFeedback.length > 0) {
+            console.warn(`Failed to highlight ${failureCount} feedback items:`, failedFeedback);
+        }
+
+        return { successCount, failureCount, failedFeedback };
     }
 
     function highlightText(container, feedback) {
         const searchText = feedback.selectedText.trim();
-        if (!searchText) return;
-
-        // More robust search that handles newlines and multiple spaces
-        const normalizedSearch = searchText.replace(/\s+/g, ' ');
+        if (!searchText) return false;
 
         const walker = document.createTreeWalker(
             container,
@@ -1131,61 +1189,90 @@ document.addEventListener('DOMContentLoaded', function() {
         const nodes = [];
         const nodeOffsets = [];
 
+        // Build text content map
         while (node = walker.nextNode()) {
             nodeOffsets.push(allText.length);
             nodes.push(node);
             allText += node.textContent;
         }
 
-        // Try exact match first, then normalized match
+        if (allText.length === 0) return false;
+
+        // Strategy 1: Exact match
         let index = allText.indexOf(searchText);
         let matchLength = searchText.length;
 
+        // Strategy 2: Normalized match with position mapping
         if (index === -1) {
-            // Try matching normalized text (collapsing spaces/newlines)
-            const normalizedAll = allText.replace(/\s+/g, ' ');
+            const normalizedSearch = normalizeText(searchText);
+            const { normalized: normalizedAll, map } = createPositionMap(allText);
             const normIndex = normalizedAll.indexOf(normalizedSearch);
-            
+
             if (normIndex !== -1) {
-                // We found a normalized match, now we need to find the start/end in original text
-                // This is a bit complex, so we'll use a simpler approach for now:
-                // Find the first few words of the search text in the original text
-                const firstWords = normalizedSearch.split(' ').slice(0, 3).join(' ');
-                index = allText.indexOf(firstWords);
-                // Guess length based on character count (imperfect but better than nothing)
-                matchLength = searchText.length; 
+                // Map normalized position back to original
+                const startMapping = map[normIndex];
+                const endMapping = map[Math.min(normIndex + normalizedSearch.length - 1, map.length - 1)];
+
+                if (startMapping && endMapping) {
+                    index = startMapping.start;
+                    matchLength = endMapping.end - startMapping.start;
+                }
             }
         }
 
+        // Strategy 3: Partial match on first significant chunk
+        if (index === -1 && searchText.length > 50) {
+            // Try finding first 50 characters (normalized)
+            const partialSearch = normalizeText(searchText.substring(0, 50));
+            const { normalized: normalizedAll, map } = createPositionMap(allText);
+            const normIndex = normalizedAll.indexOf(partialSearch);
+
+            if (normIndex !== -1) {
+                const startMapping = map[normIndex];
+                if (startMapping) {
+                    index = startMapping.start;
+                    // Use approximate length based on ratio
+                    const ratio = searchText.length / normalizeText(searchText).length;
+                    matchLength = Math.min(
+                        Math.round(normalizeText(searchText).length * ratio),
+                        allText.length - index
+                    );
+                }
+            }
+        }
+
+        // If we found a match, create the highlight
         if (index !== -1) {
             try {
                 const range = document.createRange();
-                
+
                 // Find start node
-                let startNodeIdx = nodeOffsets.findIndex((offset, i) => 
+                let startNodeIdx = nodeOffsets.findIndex((offset, i) =>
                     offset <= index && (i === nodeOffsets.length - 1 || nodeOffsets[i+1] > index)
                 );
-                
+
                 // Find end node
                 let endPos = index + matchLength;
-                let endNodeIdx = nodeOffsets.findIndex((offset, i) => 
+                let endNodeIdx = nodeOffsets.findIndex((offset, i) =>
                     offset <= endPos && (i === nodeOffsets.length - 1 || nodeOffsets[i+1] > endPos)
                 );
 
                 if (startNodeIdx !== -1 && endNodeIdx !== -1) {
                     range.setStart(nodes[startNodeIdx], index - nodeOffsets[startNodeIdx]);
-                    range.setEnd(nodes[endNodeIdx], endPos - nodeOffsets[endNodeIdx]);
+                    range.setEnd(nodes[endNodeIdx], Math.min(
+                        endPos - nodeOffsets[endNodeIdx],
+                        nodes[endNodeIdx].textContent.length
+                    ));
 
                     const mark = document.createElement('mark');
                     mark.className = 'feedback-highlight';
                     mark.dataset.feedbackId = feedback.id;
                     mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
-                    
-                    // surroundContents fails if range spans tags, so use extractContents
+
                     const content = range.extractContents();
                     mark.appendChild(content);
                     range.insertNode(mark);
-                    
+
                     // Add click handler
                     mark.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -1194,39 +1281,72 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Add hover preview
                     mark.title = `💬 ${feedback.comment.substring(0, 100)}${feedback.comment.length > 100 ? '...' : ''}`;
+
+                    return true; // Success
                 }
             } catch (err) {
                 console.warn('Could not highlight text across nodes:', err);
-                // Fallback to simple single-node search if multi-node fails
-                simpleHighlightFallback(container, feedback);
+                // Fallback to simple single-node search
+                return simpleHighlightFallback(container, feedback);
             }
         }
+
+        // No match found
+        return false;
     }
 
     function simpleHighlightFallback(container, feedback) {
+        const normalizedSearch = normalizeText(feedback.selectedText);
         const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
         let node;
+
         while (node = walker.nextNode()) {
             const text = node.textContent;
-            const index = text.indexOf(feedback.selectedText);
-            if (index !== -1) {
-                const range = document.createRange();
-                range.setStart(node, index);
-                range.setEnd(node, index + feedback.selectedText.length);
-                const mark = document.createElement('mark');
-                mark.className = 'feedback-highlight';
-                mark.dataset.feedbackId = feedback.id;
-                mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
+            const normalizedText = normalizeText(text);
+
+            // Try exact match first
+            let index = text.indexOf(feedback.selectedText);
+
+            // Try normalized match
+            if (index === -1) {
+                const normIndex = normalizedText.indexOf(normalizedSearch);
+                if (normIndex !== -1) {
+                    // Approximate original position
+                    const ratio = text.length / normalizedText.length;
+                    index = Math.round(normIndex * ratio);
+                }
+            }
+
+            if (index !== -1 && index < text.length) {
                 try {
+                    const range = document.createRange();
+                    const matchEnd = Math.min(
+                        index + feedback.selectedText.length,
+                        text.length
+                    );
+                    range.setStart(node, index);
+                    range.setEnd(node, matchEnd);
+
+                    const mark = document.createElement('mark');
+                    mark.className = 'feedback-highlight';
+                    mark.dataset.feedbackId = feedback.id;
+                    mark.style.backgroundColor = FEEDBACK_CONFIG.highlightColor;
+
                     range.surroundContents(mark);
                     mark.addEventListener('click', (e) => {
                         e.stopPropagation();
                         showCommentPopover(mark, feedback);
                     });
-                } catch (e) {}
-                break;
+                    mark.title = `💬 ${feedback.comment.substring(0, 100)}${feedback.comment.length > 100 ? '...' : ''}`;
+
+                    return true; // Success
+                } catch (e) {
+                    console.warn('Fallback highlight failed:', e);
+                }
             }
         }
+
+        return false; // Failed to highlight
     }
 
     // Comment modal
@@ -1477,13 +1597,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         // Save to localStorage for persistence
                         localStorage.setItem('imported_feedback_cache', JSON.stringify(feedbackData));
-                        
-                        // Re-render highlights
-                        renderHighlights();
-                        
+
+                        // Re-render highlights and log results
+                        const highlightResults = renderHighlights();
+
+                        // Log highlight results to console
+                        if (highlightResults && highlightResults.successCount > 0) {
+                            console.log(`Feedback import: ${highlightResults.successCount} highlights applied successfully`);
+                        }
+                        if (highlightResults && highlightResults.failureCount > 0) {
+                            console.warn(`Feedback import: ${highlightResults.failureCount} items could not be highlighted (text may have changed)`);
+                        }
+
                         // Show detailed notification
                         if (updatedPages.length > 0) {
-                            const pageList = updatedPages.length > 3 
+                            const pageList = updatedPages.length > 3
                                 ? `${updatedPages.slice(0, 3).join(', ')} and ${updatedPages.length - 3} more`
                                 : updatedPages.join(', ');
                             showNotification(`Feedback imported for: ${pageList}. It is now saved to your browser storage.`, 'success');
