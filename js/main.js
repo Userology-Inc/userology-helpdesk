@@ -2,168 +2,339 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Userology Help Center JS loaded successfully');
 
-    // Article data for search (will be populated from page content)
-    let articleIndex = [];
+    // ====================================
+    // COMPREHENSIVE SEARCH INDEX SYSTEM
+    // ====================================
 
-    // Pre-built article index for global search
-    const globalArticleIndex = [
-        { title: "Creating a Study in Userology", href: "article_25457016697629.html", category: "Study Setup" },
-        { title: "Configuring the AI Moderator in Userology", href: "article_25562045316637.html", category: "Study Settings" },
-        { title: "Configuring Question Probes in Userology", href: "article_25562114444061.html", category: "Study Settings" },
-        { title: "Recordings: Review and Manage Your Study Sessions", href: "article_recordings.html", category: "Responses and Recordings" },
-        { title: "Overview of Managing Study Respondents in Userology", href: "article_25561689734941.html", category: "Respondent Management" },
-        { title: "How to Manage Respondent Participation in Userology Studies", href: "article_25561782334749.html", category: "Respondent Management" },
-        { title: "Creating and Managing Quotes in Userology", href: "article_25562126820125.html", category: "Responses and Recordings" },
-        { title: "Creating and Downloading Clips, files in Userology", href: "article_25916497212701.html", category: "Responses and Recordings" },
-        { title: "Previewing Recorded Responses in Userology", href: "article_25562210431261.html", category: "Responses and Recordings" },
-        { title: "Exporting Recorded Responses from Userology", href: "article_25562216141213.html", category: "Responses and Recordings" },
-        { title: "AI Synthesis Studio: How to Use It", href: "article_ai_synthesis_studio.html", category: "Results and Reports" },
-        { title: "Understanding the Results Section in Userology", href: "article_results_section.html", category: "Results and Reports" },
-        { title: "Understanding Qualitative results section in Userology", href: "article_25916667142045.html", category: "Results and Reports" },
-        { title: "Understanding the Dashboard in Userology", href: "article_25562265024797.html", category: "Results and Reports" },
-        { title: "Viewing AI Summaries in Userology", href: "article_25562272476829.html", category: "Results and Reports" },
-        { title: "QnA Results Section in Userology", href: "article_25562947923741.html", category: "Results and Reports" },
-        { title: "Managing Tags in Userology", href: "article_25562292368669.html", category: "Results and Reports" },
-        { title: "Overview of Advanced Tools in Userology", href: "article_25562312351389.html", category: "Advanced Tools" },
-        { title: "Linking Your Study to Respondent Sources", href: "article_25562330763805.html", category: "Advanced Tools" },
-        { title: "Sharing Your Study with Others in Userology", href: "article_25562367390237.html", category: "Advanced Tools" },
-        { title: "Embedding Userology in Your Website", href: "article_25562389245085.html", category: "Advanced Tools" },
-        { title: "Managing Organization and Team Settings in Userology", href: "article_25562407594781.html", category: "Organization & Team" },
-        { title: "Team Collaboration and User Roles in Userology", href: "article_25562457277597.html", category: "Organization & Team" },
-        { title: "Managing Notifications and Preferences", href: "article_25562483675165.html", category: "Organization & Team" },
-        { title: "Userology Billing and Plans", href: "article_25562500326813.html", category: "Billing" },
-        { title: "Onboarding with Userology", href: "article_25456988151453.html", category: "Getting Started" },
-        { title: "Understanding Userology Basics", href: "article_25457033877533.html", category: "Getting Started" }
+    // Dynamic article index - populated by fetching and parsing article content
+    let comprehensiveSearchIndex = [];
+    let searchIndexReady = false;
+    let searchIndexPromise = null;
+
+    // Known article files to index (discovered from the helpdesk)
+    const articleFiles = [
+        'article_25457016697629.html',
+        'article_25457033877533.html',
+        'article_25561689734941.html',
+        'article_25561782334749.html',
+        'article_25562045316637.html',
+        'article_25562114444061.html',
+        'article_25562126820125.html',
+        'article_25562210431261.html',
+        'article_25562216141213.html',
+        'article_25562265024797.html',
+        'article_25562272476829.html',
+        'article_25562292368669.html',
+        'article_25562312351389.html',
+        'article_25562330763805.html',
+        'article_25562367390237.html',
+        'article_25562389245085.html',
+        'article_25562407594781.html',
+        'article_25562457277597.html',
+        'article_25562483675165.html',
+        'article_25562500326813.html',
+        'article_25562947923741.html',
+        'article_25916497212701.html',
+        'article_25916667142045.html',
+        'article_ai_synthesis_studio.html',
+        'article_email_notifications.html',
+        'article_recordings.html',
+        'article_results_section.html',
+        'article_study_details_recruiting.html',
+        'article_ux_auditor.html'
     ];
 
-    // Build search index from all article links on the page
-    function buildSearchIndex() {
-        const allLinks = document.querySelectorAll('a[href^="article_"]');
-        const seen = new Set();
+    // Userology-specific feature keywords for enhanced matching
+    const featureKeywords = [
+        'ai moderator', 'ai synthesis', 'synthesis studio', 'chat with data', 'build report',
+        'discussion guide', 'interview plan', 'question probes', 'probes',
+        'recordings', 'transcripts', 'clips', 'quotes', 'key moments',
+        'respondents', 'participants', 'recruitment', 'panel',
+        'study setup', 'study settings', 'study configuration',
+        'dashboard', 'results', 'analytics', 'metrics', 'insights',
+        'qualitative', 'quantitative', 'qna', 'q&a',
+        'tags', 'labels', 'organization', 'team', 'collaboration',
+        'embedding', 'sharing', 'export', 'download',
+        'billing', 'subscription', 'plans', 'pricing',
+        'usability testing', 'user research', 'ux research',
+        'prototype', 'live product', 'voice interview',
+        'email notifications', 'triggers', 'alerts',
+        'ux auditor', 'heuristics', 'audit'
+    ];
 
-        allLinks.forEach(link => {
-            const href = link.getAttribute('href');
-            if (!seen.has(href)) {
-                seen.add(href);
-                const title = link.textContent.trim();
-                const parent = link.closest('.topic-card, .article-item, .article-card');
-                const meta = parent ? (parent.querySelector('.article-meta, .topic-meta')?.textContent || '') : '';
+    // Extract text content from HTML, removing scripts, styles, and navigation
+    function extractTextContent(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
 
-                articleIndex.push({
-                    title: title,
-                    href: href,
-                    meta: meta,
-                    searchText: (title + ' ' + meta).toLowerCase()
-                });
+        // Remove non-content elements
+        const removeSelectors = ['script', 'style', 'nav', 'header', 'footer', '.sidebar', '.nav', '.header', '.footer', '.article-feedback', '.feedback-btn'];
+        removeSelectors.forEach(sel => {
+            doc.querySelectorAll(sel).forEach(el => el.remove());
+        });
+
+        return doc;
+    }
+
+    // Extract article data from parsed HTML document
+    function extractArticleData(doc, href) {
+        // Get title
+        const titleEl = doc.querySelector('.content h1') || doc.querySelector('title');
+        const title = titleEl ? titleEl.textContent.trim().replace(' - Userology Help Center', '') : '';
+
+        // Get meta description
+        const metaDesc = doc.querySelector('meta[name="description"]');
+        const description = metaDesc ? metaDesc.getAttribute('content') : '';
+
+        // Get category from article-meta or breadcrumb
+        const metaEl = doc.querySelector('.article-meta');
+        let category = '';
+        if (metaEl) {
+            const metaText = metaEl.textContent.trim();
+            const parts = metaText.split('|')[0].trim().split('›');
+            category = parts[parts.length - 1]?.trim() || parts[0]?.trim() || '';
+        }
+
+        // Get full article body content
+        const contentEl = doc.querySelector('.article-content');
+        const bodyText = contentEl ? contentEl.textContent.replace(/\s+/g, ' ').trim() : '';
+
+        // Extract headings for concept indexing
+        const headings = [];
+        doc.querySelectorAll('.content h2, .content h3').forEach(h => {
+            const text = h.textContent.trim();
+            if (text && text.length > 2) {
+                headings.push(text);
             }
         });
+
+        // Extract list items for feature/concept mentions
+        const listItems = [];
+        doc.querySelectorAll('.article-content li').forEach(li => {
+            const text = li.textContent.trim();
+            if (text && text.length > 5 && text.length < 200) {
+                listItems.push(text);
+            }
+        });
+
+        // Extract strong/bold text for key terms
+        const keyTerms = [];
+        doc.querySelectorAll('.article-content strong, .article-content b').forEach(el => {
+            const text = el.textContent.trim();
+            if (text && text.length > 2 && text.length < 100) {
+                keyTerms.push(text);
+            }
+        });
+
+        // Find matching feature keywords in content
+        const contentLower = (title + ' ' + description + ' ' + bodyText).toLowerCase();
+        const matchedFeatures = featureKeywords.filter(kw => contentLower.includes(kw));
+
+        return {
+            href: href,
+            title: title,
+            description: description,
+            category: category,
+            bodyText: bodyText.substring(0, 5000), // Limit for performance
+            headings: headings,
+            keyTerms: keyTerms.slice(0, 20), // Limit key terms
+            features: matchedFeatures,
+            // Pre-computed lowercase versions for fast search
+            titleLower: title.toLowerCase(),
+            descriptionLower: description.toLowerCase(),
+            categoryLower: category.toLowerCase(),
+            bodyTextLower: bodyText.toLowerCase().substring(0, 5000),
+            headingsLower: headings.map(h => h.toLowerCase()),
+            keyTermsLower: keyTerms.slice(0, 20).map(t => t.toLowerCase())
+        };
     }
 
-    // Create search results dropdown
-    function createSearchDropdown() {
-        const searchContainer = document.querySelector('.search-container');
-        if (!searchContainer) return null;
+    // Fetch and index a single article
+    async function fetchAndIndexArticle(href) {
+        try {
+            const response = await fetch(href);
+            if (!response.ok) return null;
 
-        let dropdown = searchContainer.querySelector('.search-results');
-        if (!dropdown) {
-            dropdown = document.createElement('div');
-            dropdown.className = 'search-results';
-            searchContainer.appendChild(dropdown);
+            const html = await response.text();
+            const doc = extractTextContent(html);
+            return extractArticleData(doc, href);
+        } catch (error) {
+            console.warn(`Failed to index article: ${href}`, error);
+            return null;
         }
-        return dropdown;
     }
 
-    // Highlight matching text
-    function highlightMatch(text, query) {
-        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    // Build comprehensive search index by fetching all articles
+    async function buildComprehensiveSearchIndex() {
+        console.log('Building comprehensive search index...');
+        const startTime = performance.now();
+
+        // Fetch all articles in parallel with concurrency limit
+        const batchSize = 5;
+        const results = [];
+
+        for (let i = 0; i < articleFiles.length; i += batchSize) {
+            const batch = articleFiles.slice(i, i + batchSize);
+            const batchResults = await Promise.all(batch.map(href => fetchAndIndexArticle(href)));
+            results.push(...batchResults.filter(r => r !== null));
+        }
+
+        comprehensiveSearchIndex = results;
+        searchIndexReady = true;
+
+        const endTime = performance.now();
+        console.log(`Search index built: ${results.length} articles indexed in ${(endTime - startTime).toFixed(0)}ms`);
+
+        return comprehensiveSearchIndex;
+    }
+
+    // Initialize search index (called once, returns promise for reuse)
+    function initSearchIndex() {
+        if (searchIndexPromise) return searchIndexPromise;
+        searchIndexPromise = buildComprehensiveSearchIndex();
+        return searchIndexPromise;
+    }
+
+    // Perform relevance-ranked search
+    function performComprehensiveSearch(query, maxResults = 10) {
+        if (!searchIndexReady || query.length < 2) return [];
+
+        const queryLower = query.toLowerCase().trim();
+        const queryWords = queryLower.split(/\s+/).filter(w => w.length > 1);
+
+        const scoredResults = comprehensiveSearchIndex.map(article => {
+            let score = 0;
+            let matchType = 'none';
+            let matchContext = '';
+
+            // Title exact match (highest priority) - 100 points
+            if (article.titleLower.includes(queryLower)) {
+                score += 100;
+                matchType = 'title';
+                matchContext = article.title;
+            }
+
+            // Title word match - 50 points per word
+            queryWords.forEach(word => {
+                if (article.titleLower.includes(word)) {
+                    score += 50;
+                    if (matchType === 'none') {
+                        matchType = 'title';
+                        matchContext = article.title;
+                    }
+                }
+            });
+
+            // Description match - 40 points
+            if (article.descriptionLower.includes(queryLower)) {
+                score += 40;
+                if (matchType === 'none') {
+                    matchType = 'description';
+                    matchContext = article.description;
+                }
+            }
+
+            // Category match - 30 points
+            if (article.categoryLower.includes(queryLower)) {
+                score += 30;
+                if (matchType === 'none') {
+                    matchType = 'category';
+                    matchContext = article.category;
+                }
+            }
+
+            // Key terms match (bold text) - 35 points per match
+            article.keyTermsLower.forEach((term, idx) => {
+                if (term.includes(queryLower) || queryWords.some(w => term.includes(w))) {
+                    score += 35;
+                    if (matchType === 'none' || matchType === 'category') {
+                        matchType = 'keyterm';
+                        matchContext = article.keyTerms[idx];
+                    }
+                }
+            });
+
+            // Headings match (section titles) - 25 points per match
+            article.headingsLower.forEach((heading, idx) => {
+                if (heading.includes(queryLower) || queryWords.some(w => heading.includes(w))) {
+                    score += 25;
+                    if (matchType === 'none') {
+                        matchType = 'heading';
+                        matchContext = article.headings[idx];
+                    }
+                }
+            });
+
+            // Feature keywords match - 20 points per feature
+            article.features.forEach(feature => {
+                if (queryLower.includes(feature) || feature.includes(queryLower)) {
+                    score += 20;
+                    if (matchType === 'none') {
+                        matchType = 'feature';
+                        matchContext = feature;
+                    }
+                }
+            });
+
+            // Body content match - 10 points for presence, find context
+            if (article.bodyTextLower.includes(queryLower)) {
+                score += 10;
+                if (matchType === 'none') {
+                    matchType = 'content';
+                    // Extract context around match
+                    const idx = article.bodyTextLower.indexOf(queryLower);
+                    const start = Math.max(0, idx - 40);
+                    const end = Math.min(article.bodyText.length, idx + queryLower.length + 60);
+                    matchContext = (start > 0 ? '...' : '') + article.bodyText.substring(start, end).trim() + (end < article.bodyText.length ? '...' : '');
+                }
+            }
+
+            // Body word match - 5 points per word found
+            queryWords.forEach(word => {
+                if (article.bodyTextLower.includes(word)) {
+                    score += 5;
+                }
+            });
+
+            return {
+                ...article,
+                score: score,
+                matchType: matchType,
+                matchContext: matchContext
+            };
+        });
+
+        // Filter and sort by score
+        return scoredResults
+            .filter(r => r.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, maxResults);
+    }
+
+    // Highlight search query in text
+    function highlightSearchMatch(text, query) {
+        if (!query || query.length < 2) return text;
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
         return text.replace(regex, '<mark>$1</mark>');
     }
 
-    // Perform search
-    function performSearch(query) {
-        const dropdown = createSearchDropdown();
-        if (!dropdown) return;
-
-        if (query.length < 2) {
-            dropdown.innerHTML = '';
-            dropdown.style.display = 'none';
-            return;
-        }
-
-        const queryLower = query.toLowerCase();
-        const results = articleIndex.filter(article =>
-            article.searchText.includes(queryLower)
-        ).slice(0, 8); // Limit to 8 results
-
-        if (results.length === 0) {
-            dropdown.innerHTML = '<div class="search-no-results">No articles found for "' + query + '"</div>';
-            dropdown.style.display = 'block';
-            return;
-        }
-
-        dropdown.innerHTML = results.map(article => `
-            <a href="${article.href}" class="search-result-item">
-                <div class="search-result-content">
-                    <div class="search-result-title">${highlightMatch(article.title, query)}</div>
-                    ${article.meta ? `<div class="search-result-meta">${article.meta}</div>` : ''}
-                </div>
-            </a>
-        `).join('');
-        dropdown.style.display = 'block';
+    // Get match type label for display
+    function getMatchTypeLabel(matchType) {
+        const labels = {
+            'title': 'Title match',
+            'description': 'Description match',
+            'category': 'Category match',
+            'keyterm': 'Key term',
+            'heading': 'Section match',
+            'feature': 'Feature match',
+            'content': 'Content match'
+        };
+        return labels[matchType] || '';
     }
 
-    // Initialize search
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        buildSearchIndex();
-
-        let debounceTimer;
-        searchInput.addEventListener('input', function(e) {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                performSearch(e.target.value);
-            }, 150);
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            const dropdown = document.querySelector('.search-results');
-            if (dropdown && !e.target.closest('.search-container')) {
-                dropdown.style.display = 'none';
-            }
-        });
-
-        // Keyboard navigation
-        searchInput.addEventListener('keydown', function(e) {
-            const dropdown = document.querySelector('.search-results');
-            if (!dropdown || dropdown.style.display === 'none') return;
-
-            const items = dropdown.querySelectorAll('.search-result-item');
-            const activeItem = dropdown.querySelector('.search-result-item.active');
-            let activeIndex = Array.from(items).indexOf(activeItem);
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (activeItem) activeItem.classList.remove('active');
-                activeIndex = (activeIndex + 1) % items.length;
-                items[activeIndex]?.classList.add('active');
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (activeItem) activeItem.classList.remove('active');
-                activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
-                items[activeIndex]?.classList.add('active');
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (activeItem) {
-                    window.location.href = activeItem.getAttribute('href');
-                } else if (items.length > 0) {
-                    window.location.href = items[0].getAttribute('href');
-                }
-            } else if (e.key === 'Escape') {
-                dropdown.style.display = 'none';
-            }
-        });
-    }
+    // Start building the search index immediately
+    initSearchIndex();
 
     // Add active class to current page navigation
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -508,11 +679,22 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const queryLower = query.toLowerCase();
-        const results = globalArticleIndex.filter(article =>
-            article.title.toLowerCase().includes(queryLower) ||
-            article.category.toLowerCase().includes(queryLower)
-        );
+        // Check if index is ready
+        if (!searchIndexReady) {
+            resultsContainer.innerHTML = `
+                <div class="search-modal-loading">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="spin">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <p>Building search index...</p>
+                </div>
+            `;
+            // Retry when index is ready
+            initSearchIndex().then(() => renderSearchResults(query));
+            return;
+        }
+
+        const results = performComprehensiveSearch(query, 15);
 
         if (results.length === 0) {
             resultsContainer.innerHTML = `
@@ -530,17 +712,28 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.innerHTML = `
             <div class="search-modal-section">
                 <div class="search-modal-section-title">Articles (${results.length})</div>
-                ${results.map(article => `
-                    <a href="${article.href}" class="search-modal-item">
-                        <div class="search-modal-item-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        </div>
-                        <div class="search-modal-item-content">
-                            <div class="search-modal-item-title">${highlightSearchMatch(article.title, query)}</div>
-                            <div class="search-modal-item-meta">${article.category}</div>
-                        </div>
-                    </a>
-                `).join('')}
+                ${results.map(article => {
+                    const matchLabel = getMatchTypeLabel(article.matchType);
+                    const contextSnippet = article.matchContext && article.matchType !== 'title' && article.matchType !== 'category'
+                        ? `<div class="search-modal-item-context">${highlightSearchMatch(article.matchContext.substring(0, 120), query)}${article.matchContext.length > 120 ? '...' : ''}</div>`
+                        : '';
+
+                    return `
+                        <a href="${article.href}" class="search-modal-item">
+                            <div class="search-modal-item-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <div class="search-modal-item-content">
+                                <div class="search-modal-item-title">${highlightSearchMatch(article.title, query)}</div>
+                                <div class="search-modal-item-meta">
+                                    <span>${article.category}</span>
+                                    ${matchLabel && article.matchType !== 'title' ? `<span class="search-modal-match-type">${matchLabel}</span>` : ''}
+                                </div>
+                                ${contextSnippet}
+                            </div>
+                        </a>
+                    `;
+                }).join('')}
             </div>
         `;
     }
@@ -619,7 +812,9 @@ document.addEventListener('DOMContentLoaded', function() {
             searchContainer.appendChild(heroDropdown);
             console.log('Hero dropdown created and appended');
 
-            // Search function for hero input
+            let heroDebounceTimer;
+
+            // Search function for hero input using comprehensive search
             function performHeroSearch(query) {
                 if (query.length < 2) {
                     heroDropdown.innerHTML = '';
@@ -627,11 +822,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                const queryLower = query.toLowerCase();
-                const results = globalArticleIndex.filter(article =>
-                    article.title.toLowerCase().includes(queryLower) ||
-                    article.category.toLowerCase().includes(queryLower)
-                ).slice(0, 8);
+                // Check if index is ready
+                if (!searchIndexReady) {
+                    heroDropdown.innerHTML = '<div class="hero-search-loading">Building search index...</div>';
+                    heroDropdown.style.display = 'block';
+                    // Retry when index is ready
+                    initSearchIndex().then(() => performHeroSearch(query));
+                    return;
+                }
+
+                const results = performComprehensiveSearch(query, 8);
 
                 if (results.length === 0) {
                     heroDropdown.innerHTML = '<div class="hero-search-no-results">No articles found for "' + query + '"</div>';
@@ -639,24 +839,48 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                heroDropdown.innerHTML = results.map(article => `
-                    <a href="${article.href}" class="hero-search-item">
-                        <div class="hero-search-title">${article.title}</div>
-                        <div class="hero-search-meta">${article.category}</div>
-                    </a>
-                `).join('');
+                heroDropdown.innerHTML = results.map(article => {
+                    const matchLabel = getMatchTypeLabel(article.matchType);
+                    const contextSnippet = article.matchContext && article.matchType !== 'title' && article.matchType !== 'category'
+                        ? `<div class="hero-search-context">${highlightSearchMatch(article.matchContext.substring(0, 100), query)}${article.matchContext.length > 100 ? '...' : ''}</div>`
+                        : '';
+
+                    return `
+                        <a href="${article.href}" class="hero-search-item">
+                            <div class="hero-search-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="hero-search-content">
+                                <div class="hero-search-title">${highlightSearchMatch(article.title, query)}</div>
+                                <div class="hero-search-meta">
+                                    <span class="hero-search-category">${article.category}</span>
+                                    ${matchLabel && article.matchType !== 'title' ? `<span class="hero-search-match-type">${matchLabel}</span>` : ''}
+                                </div>
+                                ${contextSnippet}
+                            </div>
+                        </a>
+                    `;
+                }).join('');
                 heroDropdown.style.display = 'block';
             }
 
-            // Input event
+            // Input event with debouncing
             heroSearchInput.addEventListener('input', function(e) {
-                console.log('Hero search input event:', e.target.value);
-                performHeroSearch(e.target.value);
+                clearTimeout(heroDebounceTimer);
+                heroDebounceTimer = setTimeout(() => {
+                    console.log('Hero search input event:', e.target.value);
+                    performHeroSearch(e.target.value);
+                }, 150);
             });
 
-            // Focus event for debugging
+            // Focus event - show loading if index not ready
             heroSearchInput.addEventListener('focus', function() {
                 console.log('Hero search input focused');
+                if (this.value.length >= 2) {
+                    performHeroSearch(this.value);
+                }
             });
 
             // Close dropdown when clicking outside
@@ -677,11 +901,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (activeItem) activeItem.classList.remove('active');
                     activeIndex = (activeIndex + 1) % items.length;
                     items[activeIndex]?.classList.add('active');
+                    items[activeIndex]?.scrollIntoView({ block: 'nearest' });
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     if (activeItem) activeItem.classList.remove('active');
                     activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
                     items[activeIndex]?.classList.add('active');
+                    items[activeIndex]?.scrollIntoView({ block: 'nearest' });
                 } else if (e.key === 'Enter' && activeIndex >= 0) {
                     e.preventDefault();
                     window.location.href = items[activeIndex].getAttribute('href');
