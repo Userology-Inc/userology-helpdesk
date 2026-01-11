@@ -643,7 +643,8 @@ a:hover {
     grid-column: 1 / -1;
     width: 100%;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    z-index: 10;
 }
 
 /* Subtle decorative pattern */
