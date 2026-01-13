@@ -1354,6 +1354,11 @@ a:hover {
 
 .article-index-list li {
     position: relative;
+    padding-left: 0;
+}
+
+.article-index-list li::before {
+    display: none;
 }
 
 .article-index-list a {
@@ -1375,22 +1380,18 @@ a:hover {
 }
 
 .article-index-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    height: 22px;
-    background: var(--u-color-border);
-    border-radius: var(--u-radius-full);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--u-color-text-light);
     flex-shrink: 0;
 }
 
+.article-index-number::after {
+    content: '.';
+}
+
 .article-index-list a:hover .article-index-number {
-    background: var(--u-color-primary);
-    color: white;
+    color: var(--u-color-primary);
 }
 
 /* Responsive: Article Index */
