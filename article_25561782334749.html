@@ -6,6 +6,11 @@
     <title>What Is a Discussion Guide on Userology and How Does It Help in AI-Moderated Usability Testing? - Userology Help Center</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        h2[id], h3[id], h4[id] {
+            scroll-margin-top: 100px;
+        }
+    </style>
 </head>
 <body>
         <header class="header">
@@ -18,6 +23,14 @@
                     </div>
                 </a>
                 <div class="header-actions">
+                    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
                     <a href="mailto:support@userology.co.in" class="btn-submit">Submit a request</a>
                 </div>
             </div>
@@ -41,7 +54,7 @@
     </nav>
 
     <div class="container">
-        <main class="main">
+        <main class="main main-with-toc">
             <aside class="sidebar">
                 <h3>Navigation</h3>
                 <ul>
@@ -77,7 +90,7 @@
 
                     <hr>
 
-                    <h3><strong>Customizing and Editing Discussion Guides</strong></h3>
+                    <h3 id="h_customizing"><strong>Customizing and Editing Discussion Guides</strong></h3>
                     <p>Userology gives you full control to customize your guide:</p>
                     <ul>
                         <li>Frame questions as <strong>AI moderator instructions</strong></li>
@@ -92,7 +105,7 @@
 
                     <hr>
 
-                    <h3><strong>Using AI-Generated Discussion Guides</strong></h3>
+                    <h3 id="h_ai_generated"><strong>Using AI-Generated Discussion Guides</strong></h3>
                     <p>Save time by generating your initial guide using Userology's built-in AI features:</p>
                     <ul>
                         <li>Use <strong>"Improve Guide"</strong> to refine your script while keeping intent intact</li>
@@ -106,7 +119,7 @@
 
                     <hr>
 
-                    <h3><strong>Creating Discussion Guides from Scratch</strong></h3>
+                    <h3 id="h_from_scratch"><strong>Creating Discussion Guides from Scratch</strong></h3>
                     <p>If you prefer, you can write a guide from scratch:</p>
                     <ul>
                         <li>Start with plain text questions</li>
@@ -120,7 +133,7 @@
 
                     <hr>
 
-                    <h3><strong>Preview and Test Before Launch</strong></h3>
+                    <h3 id="h_preview_test"><strong>Preview and Test Before Launch</strong></h3>
                     <p>Before publishing, you can <a href="article_25562312351389.html"><strong>preview</strong></a> your interview session to:</p>
                     <ul>
                         <li>Test flow and branching logic</li>
@@ -132,7 +145,7 @@
 
                     <hr>
 
-                    <h2><strong>Scaling with Interview Plans</strong></h2>
+                    <h2 id="h_scaling"><strong>Scaling with Interview Plans</strong></h2>
                     <p>Pair your discussion guide with an <strong>Interview Plan</strong> to:</p>
                     <ul>
                         <li>Combine sections like Voice Interview, Live Product Tasks, and Prototype Testing</li>
@@ -187,6 +200,22 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right Sidebar: On This Page TOC -->
+            <aside class="toc-sidebar">
+                <div class="toc-sidebar-inner">
+                    <h4 class="toc-sidebar-title">On this page</h4>
+                    <nav class="toc-sidebar-nav">
+                        <ul class="toc-sidebar-list">
+                            <li><a href="#h_customizing" class="toc-link">Customizing Guides</a></li>
+                            <li><a href="#h_ai_generated" class="toc-link">AI-Generated Guides</a></li>
+                            <li><a href="#h_from_scratch" class="toc-link">From Scratch</a></li>
+                            <li><a href="#h_preview_test" class="toc-link">Preview and Test</a></li>
+                            <li><a href="#h_scaling" class="toc-link">Scaling with Plans</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
         </main>
     </div>
 

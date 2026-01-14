@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="logo.png">
     <style>
-        h2[id], h3[id] {
+        h2[id], h3[id], h4[id] {
             scroll-margin-top: 100px;
         }
     </style>
@@ -25,6 +25,14 @@
                     </div>
                 </a>
                 <div class="header-actions">
+                    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
                     <a href="mailto:support@userology.co.in" class="btn-submit">Submit a request</a>
                 </div>
             </div>
@@ -48,7 +56,7 @@
     </nav>
 
     <div class="container">
-        <main class="main">
+        <main class="main main-with-toc">
             <aside class="sidebar">
                 <h3>Navigation</h3>
                 <ul>
@@ -69,28 +77,6 @@
                     <p dir="ltr">Userology keeps you informed at every important moment of your research study through automated email notifications. These emails are designed to ensure you never miss a critical update - whether it's getting started, tracking progress, or reviewing results.</p>
 
 <p dir="ltr">This article explains the <strong>different types of email notifications</strong> you may receive, <strong>why each one is sent</strong>, and <strong>what it means for your study</strong>.</p>
-
-                    <!-- Article Index -->
-                    <div class="article-index">
-                        <div class="article-index-header">
-                            <div class="article-index-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                </svg>
-                            </div>
-                            <h4 class="article-index-title">In This Article</h4>
-                        </div>
-                        <ul class="article-index-list">
-                            <li><a href="#h_account_creation"><span class="article-index-number">1</span>Account Creation Email</a></li>
-                            <li><a href="#h_research_completion"><span class="article-index-number">2</span>Research Completion Email</a></li>
-                            <li><a href="#h_first_participant"><span class="article-index-number">3</span>First Participant Recruited</a></li>
-                            <li><a href="#h_first_response_all"><span class="article-index-number">4</span>First Response (Publish for All)</a></li>
-                            <li><a href="#h_first_response_one"><span class="article-index-number">5</span>First Response (Publish for One)</a></li>
-                            <li><a href="#h_limit_userology"><span class="article-index-number">6</span>Response Limit – Userology</a></li>
-                            <li><a href="#h_limit_manual"><span class="article-index-number">7</span>Response Limit – Manual</a></li>
-                            <li><a href="#h_how_emails_help"><span class="article-index-number">8</span>How These Emails Help You</a></li>
-                        </ul>
-                    </div>
 
 <hr>
 
@@ -240,6 +226,25 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right Sidebar: On This Page TOC -->
+            <aside class="toc-sidebar">
+                <div class="toc-sidebar-inner">
+                    <h4 class="toc-sidebar-title">On this page</h4>
+                    <nav class="toc-sidebar-nav">
+                        <ul class="toc-sidebar-list">
+                            <li><a href="#h_account_creation" class="toc-link">Account Creation</a></li>
+                            <li><a href="#h_research_completion" class="toc-link">Research Completion</a></li>
+                            <li><a href="#h_first_participant" class="toc-link">First Participant</a></li>
+                            <li><a href="#h_first_response_all" class="toc-link">First Response (All)</a></li>
+                            <li><a href="#h_first_response_one" class="toc-link">First Response (One)</a></li>
+                            <li><a href="#h_limit_userology" class="toc-link">Limit – Userology</a></li>
+                            <li><a href="#h_limit_manual" class="toc-link">Limit – Manual</a></li>
+                            <li><a href="#h_how_emails_help" class="toc-link">How Emails Help</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
         </main>
     </div>
 

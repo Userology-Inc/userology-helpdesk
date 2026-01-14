@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p>No results found for "${query}"</p>
-                    <p style="font-size: 0.85rem; margin-top: 8px;">Try different keywords or browse topics</p>
+                    <p style="font-size: 0.875rem; margin-top: 8px;">Try different keywords or browse topics</p>
                 </div>
             `;
             return;
@@ -2147,5 +2147,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Initial sort
         sortVideos('title-asc');
+    }
+
+    // ====================================
+    // TOC SIDEBAR SCROLL SPY
+    // ====================================
+
+    const tocSidebar = document.querySelector('.toc-sidebar');
+    if (tocSidebar) {
+        const tocLinks = document.querySelectorAll('.toc-link');
+        const sections = [];
+
+        // Gather all sections that the TOC links point to
+        tocLinks.forEach(link => {
+            const targetId = link.getAttribute('href').substring(1);
+            const section = document.getElementById(targetId);
+            if (section) {
+                sections.push({ id: targetId, element: section, link: link });
+            }
+        });
+
+        // Scroll spy function to highlight current section
+        function updateActiveTocLink() {
+            const scrollPosition = window.scrollY + 120; // Offset for header
+
+            let currentSection = null;
+
+            // Find the current section
+            for (let i = sections.length - 1; i >= 0; i--) {
+                const section = sections[i];
+                if (section.element.offsetTop <= scrollPosition) {
+                    currentSection = section;
+                    break;
+                }
+            }
+
+            // Update active states
+            tocLinks.forEach(link => link.classList.remove('active'));
+
+            if (currentSection) {
+                currentSection.link.classList.add('active');
+            } else if (sections.length > 0) {
+                // If we're above all sections, highlight the first one
+                sections[0].link.classList.add('active');
+            }
+        }
+
+        // Debounce scroll handler for performance
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            if (scrollTimeout) {
+                window.cancelAnimationFrame(scrollTimeout);
+            }
+            scrollTimeout = window.requestAnimationFrame(updateActiveTocLink);
+        });
+
+        // Initial call
+        updateActiveTocLink();
+
+        // Smooth scroll for TOC links
+        tocLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Update URL without triggering scroll
+                    history.pushState(null, null, '#' + targetId);
+                }
+            });
+        });
     }
 });

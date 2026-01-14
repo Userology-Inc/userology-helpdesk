@@ -7,6 +7,11 @@
     <title>Setting up a Prototype Section in Userology - Userology Help Center</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        h2[id], h3[id], h4[id] {
+            scroll-margin-top: 100px;
+        }
+    </style>
 </head>
 <body>
         <header class="header">
@@ -19,6 +24,14 @@
                     </div>
                 </a>
                 <div class="header-actions">
+                    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
                     <a href="mailto:support@userology.co.in" class="btn-submit">Submit a request</a>
                 </div>
             </div>
@@ -42,7 +55,7 @@
     </nav>
 
     <div class="container">
-        <main class="main">
+        <main class="main main-with-toc">
             <aside class="sidebar">
                 <h3>Navigation</h3>
                 <ul>
@@ -227,6 +240,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right Sidebar: On This Page TOC -->
+            <aside class="toc-sidebar">
+                <div class="toc-sidebar-inner">
+                    <h4 class="toc-sidebar-title">On this page</h4>
+                    <nav class="toc-sidebar-nav">
+                        <ul class="toc-sidebar-list">
+                            <li><a href="#h_01JNZY1BAXS76S4FA9T9FX4PSF" class="toc-link">Key Steps</a></li>
+                            <li><a href="#h_01JNZY1BAX54W91S6AV03K193C" class="toc-link">Step-by-Step Guide</a></li>
+                            <li><a href="#h_01JNZY1BAX2CY1KVKMMTFQ429F" class="toc-link">Troubleshooting</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
         </main>
     </div>
 

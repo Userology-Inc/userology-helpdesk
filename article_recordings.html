@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="logo.png">
     <style>
-        h2[id], h3[id] {
+        h2[id], h3[id], h4[id] {
             scroll-margin-top: 100px;
         }
     </style>
@@ -25,6 +25,14 @@
                     </div>
                 </a>
                 <div class="header-actions">
+                    <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
                     <a href="mailto:support@userology.co.in" class="btn-submit">Submit a request</a>
                 </div>
             </div>
@@ -48,7 +56,7 @@
     </nav>
 
     <div class="container">
-        <main class="main">
+        <main class="main main-with-toc">
             <aside class="sidebar">
                 <h3>Navigation</h3>
                 <ul>
@@ -67,27 +75,6 @@
                 
                 <div class="article-content">
                     <p dir="ltr">Once your study is published and participants start taking part, all participant sessions are accessible in the <strong>Recordings</strong> section. You'll receive <a href="article_email_notifications.html">email notifications</a> when your first response is received and when your response limit is reached.</p>
-
-                    <!-- Article Index -->
-                    <div class="article-index">
-                        <div class="article-index-header">
-                            <div class="article-index-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                </svg>
-                            </div>
-                            <h4 class="article-index-title">In This Article</h4>
-                        </div>
-                        <ul class="article-index-list">
-                            <li><a href="#h_accessing_recordings"><span class="article-index-number">1</span>Accessing Recordings</a></li>
-                            <li><a href="#h_understanding_tabs"><span class="article-index-number">2</span>Understanding the Recording Tabs</a></li>
-                            <li><a href="#h_viewing_session"><span class="article-index-number">3</span>Viewing a Session in Detail</a></li>
-                            <li><a href="#h_managing_sessions"><span class="article-index-number">4</span>Managing Sessions Manually</a></li>
-                            <li><a href="#h_download_share"><span class="article-index-number">5</span>Downloading, Sharing, and Regenerating Insights</a></li>
-                            <li><a href="#h_conclude_generate"><span class="article-index-number">6</span>Conclude and Generate Results</a></li>
-                            <li><a href="#h_ask_ai"><span class="article-index-number">7</span>Ask AI: Get Instant Insights</a></li>
-                        </ul>
-                    </div>
 
 <hr>
 
@@ -215,6 +202,24 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right Sidebar: On This Page TOC -->
+            <aside class="toc-sidebar">
+                <div class="toc-sidebar-inner">
+                    <h4 class="toc-sidebar-title">On this page</h4>
+                    <nav class="toc-sidebar-nav">
+                        <ul class="toc-sidebar-list">
+                            <li><a href="#h_accessing_recordings" class="toc-link">Accessing Recordings</a></li>
+                            <li><a href="#h_understanding_tabs" class="toc-link">Recording Tabs</a></li>
+                            <li><a href="#h_viewing_session" class="toc-link">Viewing a Session</a></li>
+                            <li><a href="#h_managing_sessions" class="toc-link">Managing Sessions</a></li>
+                            <li><a href="#h_download_share" class="toc-link">Download & Share</a></li>
+                            <li><a href="#h_conclude_generate" class="toc-link">Conclude & Generate</a></li>
+                            <li><a href="#h_ask_ai" class="toc-link">Ask AI</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
         </main>
     </div>
 
