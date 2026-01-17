@@ -923,6 +923,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // ====================================
     // P0-2: WAS THIS HELPFUL? FEEDBACK
     // ====================================
+    const SLACK_PROXY_URL = 'https://slack-feedback-proxy.farhan-7be.workers.dev/';
+
+    // Helper function to send feedback to Slack
+    async function sendFeedbackToSlack(isHelpful, additionalComment = '') {
+        const articleTitle = document.querySelector('.article-title')?.textContent || document.title;
+        const articleUrl = window.location.href;
+
+        const emoji = isHelpful ? '👍' : '👎';
+        const status = isHelpful ? 'Helpful' : 'Not Helpful';
+
+        // Build compact message text
+        let messageText = `${emoji} *Article Feedback: ${status}*\n`;
+        messageText += `*Article:* ${articleTitle}\n`;
+        messageText += `*URL:* <${articleUrl}|View Article>`;
+
+        if (additionalComment) {
+            messageText += `\n*Comment:* ${additionalComment}`;
+        }
+
+        const slackMessage = {
+            text: messageText
+        };
+
+        try {
+            await fetch(SLACK_PROXY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(slackMessage)
+            });
+        } catch (err) {
+            console.error('Failed to send feedback to Slack:', err);
+        }
+    }
+
     const feedbackBtns = document.querySelectorAll('.feedback-btn');
     feedbackBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -940,6 +974,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isHelpful) {
                 thanks.classList.add('show');
                 form?.classList.remove('show');
+                // Send positive feedback to Slack immediately
+                sendFeedbackToSlack(true);
             } else {
                 form?.classList.add('show');
                 thanks.classList.remove('show');
@@ -955,8 +991,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const form = feedback.querySelector('.feedback-form');
             const thanks = feedback.querySelector('.feedback-thanks');
 
-            // In a real implementation, send feedback to server
-            console.log('Feedback submitted:', textarea?.value);
+            const userComment = textarea?.value?.trim() || '';
+
+            // Send negative feedback with comment to Slack
+            sendFeedbackToSlack(false, userComment);
 
             form?.classList.remove('show');
             thanks.textContent = 'Thank you for your feedback! We\'ll use it to improve our documentation.';
