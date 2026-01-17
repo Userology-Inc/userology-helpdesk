@@ -172,37 +172,39 @@ class OfflineWebsiteGenerator:
     def create_css(self):
         """Create CSS styling for the help center"""
         css_content = """
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
 
 /* Userology Premium Help Center Theme */
 :root {
-    /* Brand Colors - Premium SaaS Palette */
-    --u-color-primary: #4F46E5; /* Indigo 600 */
-    --u-color-primary-dark: #4338CA; /* Indigo 700 */
-    --u-color-primary-light: #818CF8; /* Indigo 400 */
+    /* Brand Colors - Userology Purple */
+    --u-color-primary: #6430F7; /* Userology Purple */
+    --u-color-primary-dark: #4F26C4;
+    --u-color-primary-light: #EDE7FE;
     --u-color-secondary: #0F172A; /* Slate 900 */
-    
+
     /* Text Colors */
     --u-color-text-main: #1E293B; /* Slate 800 */
     --u-color-text-muted: #64748B; /* Slate 500 */
     --u-color-text-light: #94A3B8; /* Slate 400 */
     --u-color-text-inverse: #FFFFFF;
-    
+
     /* Background Colors */
     --u-color-bg-main: #F8FAFC; /* Slate 50 */
     --u-color-bg-card: #FFFFFF;
     --u-color-bg-header: #FFFFFF;
     --u-color-bg-footer: #0F172A; /* Slate 900 */
-    
+
     /* Border Colors */
     --u-color-border: #E2E8F0; /* Slate 200 */
     --u-color-border-hover: #CBD5E1; /* Slate 300 */
-    
+
     /* Status Colors */
     --u-color-success: #10B981;
     --u-color-warning: #F59E0B;
     --u-color-error: #EF4444;
     --u-color-info: #3B82F6;
-    
+
     /* Spacing System */
     --u-space-1: 0.25rem;
     --u-space-2: 0.5rem;
@@ -212,9 +214,9 @@ class OfflineWebsiteGenerator:
     --u-space-8: 2rem;
     --u-space-12: 3rem;
     --u-space-16: 4rem;
-    
+
     /* Typography */
-    --u-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --u-font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --u-font-mono: 'JetBrains Mono', monospace;
     
     /* Shadows */
@@ -348,7 +350,7 @@ a:hover {
 .search-input:focus {
     outline: none;
     border-color: var(--u-color-primary);
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 4px rgba(100, 48, 247, 0.1);
     background-color: var(--u-color-bg-card);
 }
 
@@ -389,7 +391,7 @@ a:hover {
 .hero {
     text-align: center;
     padding: var(--u-space-16) 0;
-    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    background: linear-gradient(135deg, #EDE7FE 0%, #DDD6FE 100%);
     border-radius: var(--u-radius-xl);
     margin-bottom: var(--u-space-12);
 }
@@ -437,7 +439,7 @@ a:hover {
 .topic-icon {
     font-size: 2.5rem;
     margin-bottom: var(--u-space-4);
-    background: #EEF2FF;
+    background: #EDE7FE;
     width: 64px;
     height: 64px;
     display: flex;
@@ -463,7 +465,7 @@ a:hover {
     font-size: 0.875rem;
     color: var(--u-color-primary);
     font-weight: 600;
-    background: #EEF2FF;
+    background: #EDE7FE;
     padding: var(--u-space-1) var(--u-space-3);
     border-radius: var(--u-radius-full);
 }
@@ -550,7 +552,7 @@ a:hover {
 }
 
 .sidebar a.active {
-    background: #EEF2FF;
+    background: #EDE7FE;
     color: var(--u-color-primary);
     font-weight: 600;
 }
@@ -586,7 +588,7 @@ a:hover {
 
 .content blockquote {
     border-left: 4px solid var(--u-color-primary);
-    background: #EEF2FF;
+    background: #EDE7FE;
     padding: var(--u-space-6);
     border-radius: 0 var(--u-radius-lg) var(--u-radius-lg) 0;
     margin: var(--u-space-6) 0;

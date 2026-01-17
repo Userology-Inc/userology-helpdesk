@@ -1,14 +1,14 @@
-/* Userology Help Center - Maze Inspired Theme */
+/* Userology Help Center - Brand Theme */
 
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
 
 :root {
-    /* Brand Colors - Maze Style (Neutral + Electric Blue) */
-    --u-color-primary: #0057FF;
-    /* Electric Blue */
-    --u-color-primary-dark: #0046CC;
-    --u-color-primary-light: #E5F0FF;
+    /* Brand Colors - Userology Purple */
+    --u-color-primary: #6430F7;
+    /* Userology Purple */
+    --u-color-primary-dark: #4F26C4;
+    --u-color-primary-light: #EDE7FE;
 
     /* Neutral Scale */
     --u-color-text-main: #0F172A;
@@ -44,7 +44,7 @@
     --u-space-16: 4rem;
 
     /* Typography */
-    --u-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --u-font-sans: 'Figtree', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
     /* Shadows - Minimalist */
     --u-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -156,7 +156,7 @@ a:hover {
 
 /* Layout */
 .container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 0 var(--u-space-6);
 }
@@ -211,6 +211,47 @@ a:hover {
     display: flex;
     align-items: center;
     gap: var(--u-space-4);
+}
+
+/* Header Search Button */
+.header-search-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--u-space-2);
+    padding: 6px 12px;
+    background: var(--u-color-bg-main);
+    border: 1px solid var(--u-color-border);
+    border-radius: var(--u-radius-full);
+    cursor: pointer;
+    transition: var(--u-transition);
+    color: var(--u-color-text-muted);
+    font-size: 0.8125rem;
+}
+
+.header-search-btn:hover {
+    border-color: var(--u-color-border-hover);
+    background: var(--u-color-bg-secondary);
+}
+
+.header-search-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.header-search-btn span {
+    color: var(--u-color-text-muted);
+}
+
+.header-search-btn kbd {
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    background: var(--u-color-bg-secondary);
+    border: 1px solid var(--u-color-border);
+    border-radius: var(--u-radius-sm);
+    color: var(--u-color-text-light);
+    margin-left: var(--u-space-2);
 }
 
 .btn-submit {
@@ -320,7 +361,8 @@ a:hover {
 
 /* Three Column Layout with TOC */
 .main-with-toc {
-    grid-template-columns: 180px 1fr 220px;
+    grid-template-columns: 180px 1fr 250px;
+    gap: var(--u-space-6) var(--u-space-12);
 }
 
 /* Right Sidebar: On This Page TOC */
@@ -329,8 +371,9 @@ a:hover {
     top: 100px;
     height: fit-content;
     max-height: calc(100vh - 140px);
-    padding-left: var(--u-space-4);
-    border-left: 1px solid var(--u-color-border);
+    padding-left: var(--u-space-8);
+    margin-left: var(--u-space-8);
+    border-left: none;
 }
 
 .toc-sidebar-inner {
@@ -339,13 +382,7 @@ a:hover {
 }
 
 .toc-sidebar-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--u-color-text-light);
-    margin-bottom: var(--u-space-3);
-    margin-top: 0;
+    display: none;
 }
 
 .toc-sidebar-list {
@@ -372,6 +409,7 @@ a:hover {
     border-left: 2px solid transparent;
     text-decoration: none;
     transition: var(--u-transition);
+    white-space: nowrap;
 }
 
 .toc-link:hover {
@@ -2893,9 +2931,9 @@ input:focus-visible {
 
 /* Dark Mode Styles */
 [data-theme="dark"] {
-    --u-color-primary: #3B82F6;
-    --u-color-primary-dark: #2563EB;
-    --u-color-primary-light: rgba(59, 130, 246, 0.15);
+    --u-color-primary: #8B5CF6;
+    --u-color-primary-dark: #7C3AED;
+    --u-color-primary-light: rgba(139, 92, 246, 0.15);
 
     --u-color-text-main: #F1F5F9;
     --u-color-text-muted: #94A3B8;
@@ -2924,7 +2962,7 @@ input:focus-visible {
 }
 
 [data-theme="dark"] .search-modal-item-title mark {
-    background: rgba(59, 130, 246, 0.3);
+    background: rgba(139, 92, 246, 0.3);
 }
 
 [data-theme="dark"] .hero {
