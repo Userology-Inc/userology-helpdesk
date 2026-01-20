@@ -1015,33 +1015,20 @@ a:hover {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
-    position: relative;
-    overflow: hidden;
-}
-
-.topic-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--u-color-primary), var(--u-color-primary-dark));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
 }
 
 .topic-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -8px rgba(0, 87, 255, 0.15);
     border-color: var(--u-color-primary);
+    box-shadow: 0 12px 32px -8px rgba(0, 87, 255, 0.2);
+    transform: translateY(-6px);
 }
 
-.topic-card:hover::before {
-    transform: scaleX(1);
+.topic-card:focus-visible {
+    outline: none;
+    border-color: var(--u-color-primary);
+    box-shadow: 0 12px 32px -8px rgba(0, 87, 255, 0.2);
 }
 
 .topic-icon {
@@ -2174,7 +2161,7 @@ html {
 }
 
 /* Focus Styles for Accessibility */
-a:focus-visible,
+a:focus-visible:not(.topic-card):not(.popular-article-card):not(.article-card):not(.article-card-enhanced):not(.related-article-card),
 button:focus-visible,
 input:focus-visible {
     outline: 2px solid var(--u-color-primary);
@@ -4274,4 +4261,22 @@ input:focus-visible {
         left: 20px !important;
         right: 20px;
     }
+}
+
+/* Override focus styles for all cards - placed at end for highest priority */
+.topic-card:focus,
+.topic-card:focus-visible,
+.popular-article-card:focus,
+.popular-article-card:focus-visible,
+.article-card:focus,
+.article-card:focus-visible,
+.article-card-enhanced:focus,
+.article-card-enhanced:focus-visible,
+.related-article-card:focus,
+.related-article-card:focus-visible {
+    outline: 0 !important;
+    outline-style: none !important;
+    outline-width: 0 !important;
+    outline-offset: 0 !important;
+    border: 1px solid var(--u-color-primary) !important;
 }
