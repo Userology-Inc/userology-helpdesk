@@ -317,6 +317,18 @@ a:hover {
     padding: var(--u-space-8) 0;
 }
 
+/* Section Page Main - No sidebar, centered content */
+.section-main {
+    display: block;
+    padding: var(--u-space-8) 0;
+    min-height: calc(100vh - 200px);
+}
+
+.section-main .content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
 /* Sidebar */
 .sidebar {
     position: sticky;
