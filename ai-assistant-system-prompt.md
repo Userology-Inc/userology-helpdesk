@@ -1452,29 +1452,101 @@ Export session recordings and create highlight clips. Focus on specific parts of
 - **URL:** article_regenerating_ai_insights.html
 
 **Overview:**
-Regenerate AI-generated insights when you need fresh analysis or after making changes to your study.
+Userology's AI generates insights at multiple levels, from session-level analysis to moderator instructions in your interview plan. If the AI output doesn't meet your expectations, or if you've made changes to your study, you can regenerate these insights to get fresh, updated analysis.
+
+**When to Regenerate:**
+- AI output doesn't meet expectations
+- You've made changes to your study
+- You want fresh analysis on a session
+- Moderator instructions need updating after editing questions
+
+---
 
 **Regenerating Session AI Overview and AI Findings:**
-1. Navigate to **Recordings** section
-2. Click **View Session** for a participant
-3. Click the **Regenerate** icon (circular arrow) in the top-right toolbar
-4. Updated insights reflect in Qualitative and Quantitative Results
+
+**What It Does:**
+- Regenerates the AI Overview for a participant session
+- Updates AI Findings (challenges and positive moments)
+- Reflects changes across Qualitative and Quantitative Results
+- Updates any generated reports with new insights
+
+**How to Regenerate:**
+1. Navigate to the **Recordings** section
+2. Click **View Session** for the participant you want to update
+3. Locate the **Regenerate** icon (circular arrow) in the top-right toolbar
+4. Hover over the icon to see tooltip: "Regenerate session overview and findings"
+5. Click the icon to regenerate
+
+**Where Changes Appear:**
+- Session AI Overview panel
+- AI Findings markers on the video progress bar
+- Qualitative Results section
+- Quantitative Results section
+- Any previously generated reports
+
+**Important:** Regenerating **replaces** existing insights - the previous version is not saved. Multiple regenerations are allowed with no limit on attempts.
+
+---
 
 **Regenerating Moderator Instructions:**
+
+**What It Does:**
+- Updates the AI-generated instructions that guide the AI moderator
+- Refreshes how the AI conducts each section of your interview
+- Useful after editing questions or changing section focus
+
+**How to Regenerate:**
 1. Navigate to **Interview Plan**
-2. Select the section to update
-3. Click the **three-dot menu** (⋮)
+2. Select the section you want to update
+3. Click the **three-dot menu** (⋮) in the section header
 4. Select **Regenerate moderator instructions**
-- Only available for **Live** or **Paused** studies (not concluded)
 
-**Improve with AI:**
-- Click **Improve with AI** at the bottom of a section
-- Describe what to improve (add follow-ups, simplify language, focus on topics)
-- Click **Improve guide** to apply
+**Availability:**
+- ✅ Available for **Live** studies
+- ✅ Available for **Paused** studies
+- ❌ NOT available for **Concluded** studies
 
-**Important Notes:**
-- Regenerating **replaces** existing insights — previous version is not saved
-- Multiple regenerations allowed with no limit
+---
+
+**Improve with AI Feature:**
+
+**What It Does:**
+- Refines your discussion guide using AI suggestions
+- Allows you to describe specific improvements you want
+- Applies AI-powered enhancements to your questions and instructions
+
+**How to Use:**
+1. Navigate to **Interview Plan**
+2. Go to the section you want to improve
+3. Click **Improve with AI** at the bottom of the section
+4. A modal opens showing your current guide
+5. Describe what you'd like to improve in the text field
+6. Click **Improve guide** to apply the changes
+
+**Example Improvement Requests:**
+- "Add follow-up questions about user frustrations"
+- "Simplify the language for non-technical participants"
+- "Focus more on onboarding experience"
+- "Make questions more open-ended"
+- "Add probing questions about specific pain points"
+
+---
+
+**Key Differences:**
+
+| Feature | Purpose | Location |
+|---------|---------|----------|
+| Regenerate Session Insights | Update AI analysis of a recorded session | Recordings > View Session |
+| Regenerate Moderator Instructions | Update AI moderator guidance | Interview Plan > Section menu |
+| Improve with AI | Enhance discussion guide with AI suggestions | Interview Plan > Section bottom |
+
+---
+
+**Best Practices:**
+- Regenerate session insights after excluding/including responses
+- Update moderator instructions after significant question changes
+- Use "Improve with AI" for iterative refinement of your guide
+- Remember that regeneration replaces previous content - no undo available
 
 ---
 
