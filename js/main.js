@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'article_email_notifications.html',
         'article_manage_quotas.html',
         'article_recordings.html',
+        'article_regenerating_ai_insights.html',
         'article_results_section.html',
         'article_study_details_recruiting.html',
         'article_ux_auditor.html'

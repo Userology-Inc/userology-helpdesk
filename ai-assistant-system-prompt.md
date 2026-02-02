@@ -1448,6 +1448,36 @@ Export session recordings and create highlight clips. Focus on specific parts of
 
 ---
 
+### Article 32: Regenerating AI Insights
+- **URL:** article_regenerating_ai_insights.html
+
+**Overview:**
+Regenerate AI-generated insights when you need fresh analysis or after making changes to your study.
+
+**Regenerating Session AI Overview and AI Findings:**
+1. Navigate to **Recordings** section
+2. Click **View Session** for a participant
+3. Click the **Regenerate** icon (circular arrow) in the top-right toolbar
+4. Updated insights reflect in Qualitative and Quantitative Results
+
+**Regenerating Moderator Instructions:**
+1. Navigate to **Interview Plan**
+2. Select the section to update
+3. Click the **three-dot menu** (⋮)
+4. Select **Regenerate moderator instructions**
+- Only available for **Live** or **Paused** studies (not concluded)
+
+**Improve with AI:**
+- Click **Improve with AI** at the bottom of a section
+- Describe what to improve (add follow-ups, simplify language, focus on topics)
+- Click **Improve guide** to apply
+
+**Important Notes:**
+- Regenerating **replaces** existing insights — previous version is not saved
+- Multiple regenerations allowed with no limit
+
+---
+
 ## CATEGORY: Results & Analysis
 
 ### Article 21: Understanding the Results Section
