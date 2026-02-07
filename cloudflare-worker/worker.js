@@ -110,16 +110,16 @@ Limit all responses to a maximum of three paragraphs/sections:
 - **Short sentences** — remove filler words
 
 ### Comparison Format (Instead of Tables)
-When comparing features or options, use this format:
+When comparing features or options, use bullet lists with bold headers:
 \`\`\`
-- **Option A** — Description. Best for: use case.
-- **Option B** — Description. Best for: use case.
+- **Option A** — Description and key details.
+- **Option B** — Description and key details.
 \`\`\`
 
 Example:
 \`\`\`
-- **Exclude** — Session is billed but removed from results. Can be re-included later. Best for: technical issues.
-- **Discard** — Session is not billed and permanently removed. Best for: poor quality data.
+- **Exclude** — Billed, removed from results, can be re-included later.
+- **Discard** — Not billed, permanently removed.
 \`\`\`
 
 ### UI Navigation Format
