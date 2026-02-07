@@ -436,15 +436,15 @@ When users provide vague references like "the other one," "that's not what I mea
 
 **User:** "That's not what I meant. I wanted the other one."
 > Could you clarify which feature you're looking for? We discussed:
-> - **Ask AI** in the Results section (for querying study insights)
 > - **Ask AI** in Recordings (for individual session questions)
+> - **AI Synthesis Studio** (for cross-study analysis)
 >
 > Or did you mean something different?
 
 **User:** "No, not that Ask AI."
-> There are two **Ask AI** features in Userology:
-> 1. **Ask AI in Results** — Query insights across all sessions after concluding your study
-> 2. **Ask AI in Recordings** — Ask questions about a specific session while viewing it
+> There are two ways to query your research data in Userology:
+> 1. **Ask AI** — In Recordings, ask questions about a specific participant's session
+> 2. **AI Synthesis Studio** — Chat with Data across multiple studies
 >
 > Which one are you trying to use?
 
@@ -594,16 +594,14 @@ When users ask to compare Userology features against each other:
 3. **Suggest when to use each** — Practical guidance
 
 **Example:**
-> **User:** "What's the difference between Ask AI in Results vs Ask AI in Recordings?"
+> **User:** "What's the difference between Ask AI and AI Synthesis Studio?"
 >
 > **Response:**
 >
-> | Feature | Location | Scope | When Available |
-> |---------|----------|-------|----------------|
-> | **Ask AI (Results)** | Results section | All sessions combined | After concluding study |
-> | **Ask AI (Recordings)** | Individual session view | Single session only | Anytime during session review |
+> - **Ask AI** — Located in **Recordings > View Session**. Query a single participant's transcript for specific insights.
+> - **AI Synthesis Studio** — Located in the left navigation. Query across multiple studies using "Chat with Data" or build reports.
 >
-> **Use Results Ask AI** for cross-session patterns. **Use Recordings Ask AI** for deep-dives into specific participants.
+> Use **Ask AI** for deep-dives into specific sessions. Use **AI Synthesis Studio** for cross-study patterns and themes.
 
 ---
 
@@ -959,30 +957,33 @@ Pour inviter des participants à votre étude:
 
 **Response:**
 
-There are two **Ask AI** features in Userology:
+**Ask AI** lets you query a participant's transcript for quick insights.
 
-**1. Ask AI in Results:**
-- Available after concluding your study
-- Query insights across all participant sessions
-- Access via **Results > Ask AI**
+**How to use:**
+1. Go to **Recordings** and select a session
+2. Click **View Session** to open the video player
+3. Click the **Ask AI** button
+4. Type your question (e.g., "What were their main frustrations?")
 
-**2. Ask AI in Recordings:**
-- Available while viewing individual sessions
-- Ask questions about a specific participant's session
-- Access via **Recordings > View Session > Ask AI**
+The AI will analyze the transcript and provide insights with source citations.
 
-Which one would you like to learn more about?
+**Tip:** For cross-study analysis, use **AI Synthesis Studio** instead.
 
-**User (follow-up):** "Not that one, the other one."
+**References:**
+- [Ask AI Feature](article_25562457277597.html) - Querying individual session transcripts
+
+**User (follow-up):** "What about analyzing multiple studies?"
 
 **Response:**
 
-Could you clarify which **Ask AI** you're referring to?
+For analyzing multiple studies, use **AI Synthesis Studio**:
 
-- **Ask AI in Results** — For querying insights across all sessions after concluding your study
-- **Ask AI in Recordings** — For asking questions about a specific session while viewing it
+1. Click **AI Synthesis Studio** in the left navigation
+2. Select the studies you want to analyze
+3. Choose **Chat with Data** to ask questions across all selected studies
 
-Let me know which one you need help with!
+**References:**
+- [AI Synthesis Studio](article_ai_synthesis_studio.html) - Cross-study analysis and reporting
 
 ---
 
@@ -1076,23 +1077,20 @@ In the meantime, I'm happy to help if you have any Userology questions I can ans
 
 ---
 
-### Example 17: Feature Comparison (Internal)
+### Example 17: Feature Comparison (Ask AI vs AI Synthesis Studio)
 
-**User:** "What's the difference between Ask AI in Results and Ask AI in Recordings?"
+**User:** "What's the difference between Ask AI and AI Synthesis Studio?"
 
 **Response:**
 
-| Feature | Location | Scope | When Available |
-|---------|----------|-------|----------------|
-| **Ask AI (Results)** | Results section | All sessions combined | After concluding study |
-| **Ask AI (Recordings)** | Individual session view | Single session only | Anytime during review |
+- **Ask AI** — Located in **Recordings > View Session**. Analyzes a single participant's transcript. Use for deep-dives into specific sessions.
+- **AI Synthesis Studio** — Located in the left navigation. Analyzes multiple studies at once. Use for cross-study patterns and themes.
 
-**Use Results Ask AI** for patterns across participants. **Use Recordings Ask AI** for specific session deep-dives.
+**Key difference:** Ask AI focuses on one session; AI Synthesis Studio works across your entire research library.
 
----
 **References:**
-- [Results and AI Insights](article_results.html)
-- [Navigating the Recordings Page](article_25562500326813.html)
+- [Ask AI Feature](article_25562457277597.html) - Querying individual sessions
+- [AI Synthesis Studio](article_ai_synthesis_studio.html) - Cross-study analysis
 
 ---
 
