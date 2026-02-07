@@ -4707,57 +4707,38 @@ input:focus-visible {
     margin-bottom: var(--u-space-1);
 }
 
-/* AI Response References Section */
+/* AI Response References Section - Compact like Google AI Studio */
 .ask-ai-message-content .ai-references {
     margin-top: var(--u-space-3);
-    padding-top: var(--u-space-3);
+    padding-top: var(--u-space-2);
     border-top: 1px solid var(--u-color-border);
 }
 
 .ask-ai-message-content .ai-references-title {
-    display: block;
-    font-size: 0.75rem;
+    display: inline;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--u-color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: var(--u-space-2);
+    color: var(--u-color-text-main);
 }
 
 .ask-ai-message-content .ai-references-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: var(--u-space-1) 0 0 0;
 }
 
 .ask-ai-message-content .ai-references-list li {
-    padding: var(--u-space-1) 0;
+    padding: 2px 0;
     font-size: 0.8125rem;
-    display: flex;
-    align-items: baseline;
-    gap: var(--u-space-2);
-}
-
-.ask-ai-message-content .ai-references-list li::before {
-    content: "→";
-    color: var(--u-color-primary);
-    flex-shrink: 0;
 }
 
 .ask-ai-message-content .ai-references-list a {
     color: var(--u-color-primary);
     text-decoration: none;
-    font-weight: 500;
 }
 
 .ask-ai-message-content .ai-references-list a:hover {
     text-decoration: underline;
-}
-
-.ask-ai-message-content .ai-references-list em {
-    color: var(--u-color-text-secondary);
-    font-style: normal;
-    font-size: 0.75rem;
 }
 
 /* AI Links */
