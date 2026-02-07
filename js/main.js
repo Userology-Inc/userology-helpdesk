@@ -2588,19 +2588,9 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollToBottom();
         }
 
-        // Format AI response (comprehensive markdown formatting)
+        // Format AI response (markdown to HTML)
         function formatAiResponse(text) {
-            // Don't escape HTML yet - we need to process markdown first
-            let formatted = text;
-
-            // Process tables first (before line breaks mess them up)
-            formatted = processMarkdownTables(formatted);
-
-            // Process horizontal rules (--- on its own line) - convert to styled divider
-            formatted = formatted.replace(/^---$/gm, '<hr class="ai-divider">');
-
-            // Process the rest with HTML escaping for non-markdown content
-            const lines = formatted.split('\n');
+            const lines = text.split('\n');
             const processedLines = [];
             let inList = false;
             let listType = null;
@@ -2609,15 +2599,8 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
 
-                // Skip if already processed (tables, hr)
-                if (line.includes('<table') || line.includes('</table>') ||
-                    line.includes('<tr') || line.includes('<hr')) {
-                    if (inList) {
-                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
-                        inList = false;
-                        listType = null;
-                    }
-                    processedLines.push(line);
+                // Skip table separator lines (| :--- | :--- |)
+                if (line.match(/^\|[\s:-]+\|[\s:-|]*$/)) {
                     continue;
                 }
 
@@ -2630,7 +2613,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     inReferences = true;
                     processedLines.push('<div class="ai-references">');
-                    processedLines.push('<strong class="ai-references-title">References:</strong>');
+                    processedLines.push('<span class="ai-references-title">References</span>');
                     continue;
                 }
 
@@ -2674,11 +2657,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         processedLines.push('</div>');
                         inReferences = false;
                     }
-                    processedLines.push('<br>');
                     continue;
                 }
 
-                // Regular paragraph text
+                // Regular paragraph text (skip if just ---)
+                if (line.trim() === '---') {
+                    continue;
+                }
+
                 if (inList) {
                     processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
                     inList = false;
@@ -2702,84 +2688,13 @@ document.addEventListener('DOMContentLoaded', function() {
         function formatInlineMarkdown(text) {
             // Bold text **text**
             text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            // Italic text *text* (but not inside links or already processed)
+            // Italic text *text*
             text = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
             // Links [text](url)
             text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="ai-link">$1</a>');
+            // Em dash
+            text = text.replace(/ — /g, ' <span class="ai-dash">—</span> ');
             return text;
-        }
-
-        // Process markdown tables
-        function processMarkdownTables(text) {
-            const lines = text.split('\n');
-            const result = [];
-            let i = 0;
-
-            while (i < lines.length) {
-                // Check if this line could be a table header (has |)
-                if (lines[i].includes('|') && i + 1 < lines.length &&
-                    lines[i + 1].match(/^\|?[\s:-]+\|[\s:-|]+$/)) {
-
-                    // This is a table - process it
-                    const tableLines = [];
-                    tableLines.push(lines[i]); // Header row
-                    tableLines.push(lines[i + 1]); // Separator row
-                    i += 2;
-
-                    // Get data rows
-                    while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
-                        tableLines.push(lines[i]);
-                        i++;
-                    }
-
-                    // Convert to HTML table
-                    result.push(convertTableToHtml(tableLines));
-                } else {
-                    result.push(lines[i]);
-                    i++;
-                }
-            }
-
-            return result.join('\n');
-        }
-
-        // Convert markdown table lines to HTML
-        function convertTableToHtml(tableLines) {
-            if (tableLines.length < 2) return tableLines.join('\n');
-
-            const headerRow = tableLines[0];
-            const dataRows = tableLines.slice(2); // Skip separator
-
-            // Parse header cells
-            const headerCells = headerRow.split('|')
-                .map(cell => cell.trim())
-                .filter(cell => cell !== '');
-
-            // Build HTML table
-            let html = '<div class="ai-table-wrapper"><table class="ai-table">';
-
-            // Header
-            html += '<thead><tr>';
-            headerCells.forEach(cell => {
-                html += '<th>' + formatInlineMarkdown(cell) + '</th>';
-            });
-            html += '</tr></thead>';
-
-            // Body
-            html += '<tbody>';
-            dataRows.forEach(row => {
-                const cells = row.split('|')
-                    .map(cell => cell.trim())
-                    .filter(cell => cell !== '');
-                html += '<tr>';
-                cells.forEach(cell => {
-                    html += '<td>' + formatInlineMarkdown(cell) + '</td>';
-                });
-                html += '</tr>';
-            });
-            html += '</tbody></table></div>';
-
-            return html;
         }
 
         // Escape HTML
