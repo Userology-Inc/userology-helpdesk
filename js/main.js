@@ -2590,9 +2590,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Format AI response (markdown to HTML)
         function formatAiResponse(text) {
-            // First, process tables
-            text = processMarkdownTables(text);
-
             const lines = text.split('\n');
             const processedLines = [];
             let inList = false;
@@ -2602,25 +2599,14 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
 
-                // Skip empty lines and separators
-                if (line.trim() === '' || line.trim() === '---') {
+                // Skip empty lines, separators, and table syntax lines
+                if (line.trim() === '' || line.trim() === '---' ||
+                    line.match(/^\|[\s:-]+\|/) || line.includes('| :---')) {
                     if (inList) {
                         processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
                         inList = false;
                         listType = null;
                     }
-                    continue;
-                }
-
-                // Pass through already-processed HTML (tables)
-                if (line.includes('<table') || line.includes('</table>') ||
-                    line.includes('<tr') || line.includes('<td') || line.includes('<th')) {
-                    if (inList) {
-                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
-                        inList = false;
-                        listType = null;
-                    }
-                    processedLines.push(line);
                     continue;
                 }
 
@@ -2662,14 +2648,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         inList = true;
                         listType = 'ul';
                     }
-                    // For references, strip the em dash and description for cleaner look
-                    let content = bulletMatch[1];
-                    if (inReferences) {
-                        // Remove " — *description*" pattern for compact references
-                        content = content.replace(/ — <em>[^<]+<\/em>$/, '');
-                        content = content.replace(/ — \*[^*]+\*$/, '');
-                    }
-                    processedLines.push('<li>' + content + '</li>');
+                    processedLines.push('<li>' + bulletMatch[1] + '</li>');
                     continue;
                 }
 
@@ -2691,54 +2670,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             return processedLines.join('');
-        }
-
-        // Process markdown tables into HTML
-        function processMarkdownTables(text) {
-            const lines = text.split('\n');
-            const result = [];
-            let i = 0;
-
-            while (i < lines.length) {
-                // Check for table: line with |, followed by separator line
-                if (lines[i] && lines[i].includes('|') &&
-                    i + 1 < lines.length &&
-                    lines[i + 1].match(/^\|?[\s:-]+\|[\s:-|]+\|?$/)) {
-
-                    // Parse header
-                    const headerCells = lines[i].split('|').map(c => c.trim()).filter(c => c);
-                    i += 2; // Skip header and separator
-
-                    // Parse body rows
-                    const bodyRows = [];
-                    while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
-                        const cells = lines[i].split('|').map(c => c.trim()).filter(c => c);
-                        bodyRows.push(cells);
-                        i++;
-                    }
-
-                    // Build HTML table
-                    let html = '<div class="ai-table-wrapper"><table class="ai-table">';
-                    html += '<thead><tr>';
-                    headerCells.forEach(cell => {
-                        html += '<th>' + formatInlineMarkdown(cell) + '</th>';
-                    });
-                    html += '</tr></thead><tbody>';
-                    bodyRows.forEach(row => {
-                        html += '<tr>';
-                        row.forEach(cell => {
-                            html += '<td>' + formatInlineMarkdown(cell) + '</td>';
-                        });
-                        html += '</tr>';
-                    });
-                    html += '</tbody></table></div>';
-                    result.push(html);
-                } else {
-                    result.push(lines[i]);
-                    i++;
-                }
-            }
-            return result.join('\n');
         }
 
         // Format inline markdown (bold, italic, links)

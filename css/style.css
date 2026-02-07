@@ -4707,7 +4707,7 @@ input:focus-visible {
     margin-bottom: var(--u-space-1);
 }
 
-/* AI Response References Section - Compact like Google AI Studio */
+/* AI Response References Section */
 .ask-ai-message-content .ai-references {
     margin-top: var(--u-space-3);
     padding-top: var(--u-space-2);
@@ -4715,21 +4715,23 @@ input:focus-visible {
 }
 
 .ask-ai-message-content .ai-references-title {
-    display: inline;
+    display: block;
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--u-color-text-main);
+    margin-bottom: var(--u-space-1);
 }
 
 .ask-ai-message-content .ai-references-list {
     list-style: none;
     padding: 0;
-    margin: var(--u-space-1) 0 0 0;
+    margin: 0;
 }
 
 .ask-ai-message-content .ai-references-list li {
-    padding: 2px 0;
+    padding: 3px 0;
     font-size: 0.8125rem;
+    color: var(--u-color-text-secondary);
 }
 
 .ask-ai-message-content .ai-references-list a {
