@@ -2588,25 +2588,198 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollToBottom();
         }
 
-        // Format AI response (simple markdown-like formatting)
+        // Format AI response (comprehensive markdown formatting)
         function formatAiResponse(text) {
-            // Escape HTML first
-            let formatted = escapeHtml(text);
+            // Don't escape HTML yet - we need to process markdown first
+            let formatted = text;
 
-            // Bold text
-            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Process tables first (before line breaks mess them up)
+            formatted = processMarkdownTables(formatted);
 
-            // Links - [text](url)
-            formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+            // Process horizontal rules (--- on its own line) - convert to styled divider
+            formatted = formatted.replace(/^---$/gm, '<hr class="ai-divider">');
 
-            // Line breaks
-            formatted = formatted.replace(/\n/g, '<br>');
+            // Process the rest with HTML escaping for non-markdown content
+            const lines = formatted.split('\n');
+            const processedLines = [];
+            let inList = false;
+            let listType = null;
+            let inReferences = false;
 
-            // Simple bullet points
-            formatted = formatted.replace(/^- (.+)$/gm, '<li>$1</li>');
-            formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
 
-            return formatted;
+                // Skip if already processed (tables, hr)
+                if (line.includes('<table') || line.includes('</table>') ||
+                    line.includes('<tr') || line.includes('<hr')) {
+                    if (inList) {
+                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        inList = false;
+                        listType = null;
+                    }
+                    processedLines.push(line);
+                    continue;
+                }
+
+                // Check for References section
+                if (line.match(/^\*\*References:\*\*$/)) {
+                    if (inList) {
+                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        inList = false;
+                        listType = null;
+                    }
+                    inReferences = true;
+                    processedLines.push('<div class="ai-references">');
+                    processedLines.push('<strong class="ai-references-title">References:</strong>');
+                    continue;
+                }
+
+                // Format inline markdown (bold, links, italic)
+                line = formatInlineMarkdown(line);
+
+                // Numbered list item (1. 2. etc.)
+                const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/);
+                if (numberedMatch) {
+                    if (!inList || listType !== 'ol') {
+                        if (inList) processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        processedLines.push('<ol class="ai-list">');
+                        inList = true;
+                        listType = 'ol';
+                    }
+                    processedLines.push('<li>' + numberedMatch[2] + '</li>');
+                    continue;
+                }
+
+                // Bullet list item (- or *)
+                const bulletMatch = line.match(/^[-*]\s+(.+)$/);
+                if (bulletMatch) {
+                    if (!inList || listType !== 'ul') {
+                        if (inList) processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        processedLines.push(inReferences ? '<ul class="ai-references-list">' : '<ul class="ai-list">');
+                        inList = true;
+                        listType = 'ul';
+                    }
+                    processedLines.push('<li>' + bulletMatch[1] + '</li>');
+                    continue;
+                }
+
+                // Empty line - close list if open
+                if (line.trim() === '') {
+                    if (inList) {
+                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        inList = false;
+                        listType = null;
+                    }
+                    if (inReferences) {
+                        processedLines.push('</div>');
+                        inReferences = false;
+                    }
+                    processedLines.push('<br>');
+                    continue;
+                }
+
+                // Regular paragraph text
+                if (inList) {
+                    processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                    inList = false;
+                    listType = null;
+                }
+                processedLines.push('<p class="ai-paragraph">' + line + '</p>');
+            }
+
+            // Close any open tags
+            if (inList) {
+                processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+            }
+            if (inReferences) {
+                processedLines.push('</div>');
+            }
+
+            return processedLines.join('');
+        }
+
+        // Format inline markdown (bold, italic, links)
+        function formatInlineMarkdown(text) {
+            // Bold text **text**
+            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // Italic text *text* (but not inside links or already processed)
+            text = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+            // Links [text](url)
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="ai-link">$1</a>');
+            return text;
+        }
+
+        // Process markdown tables
+        function processMarkdownTables(text) {
+            const lines = text.split('\n');
+            const result = [];
+            let i = 0;
+
+            while (i < lines.length) {
+                // Check if this line could be a table header (has |)
+                if (lines[i].includes('|') && i + 1 < lines.length &&
+                    lines[i + 1].match(/^\|?[\s:-]+\|[\s:-|]+$/)) {
+
+                    // This is a table - process it
+                    const tableLines = [];
+                    tableLines.push(lines[i]); // Header row
+                    tableLines.push(lines[i + 1]); // Separator row
+                    i += 2;
+
+                    // Get data rows
+                    while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
+                        tableLines.push(lines[i]);
+                        i++;
+                    }
+
+                    // Convert to HTML table
+                    result.push(convertTableToHtml(tableLines));
+                } else {
+                    result.push(lines[i]);
+                    i++;
+                }
+            }
+
+            return result.join('\n');
+        }
+
+        // Convert markdown table lines to HTML
+        function convertTableToHtml(tableLines) {
+            if (tableLines.length < 2) return tableLines.join('\n');
+
+            const headerRow = tableLines[0];
+            const dataRows = tableLines.slice(2); // Skip separator
+
+            // Parse header cells
+            const headerCells = headerRow.split('|')
+                .map(cell => cell.trim())
+                .filter(cell => cell !== '');
+
+            // Build HTML table
+            let html = '<div class="ai-table-wrapper"><table class="ai-table">';
+
+            // Header
+            html += '<thead><tr>';
+            headerCells.forEach(cell => {
+                html += '<th>' + formatInlineMarkdown(cell) + '</th>';
+            });
+            html += '</tr></thead>';
+
+            // Body
+            html += '<tbody>';
+            dataRows.forEach(row => {
+                const cells = row.split('|')
+                    .map(cell => cell.trim())
+                    .filter(cell => cell !== '');
+                html += '<tr>';
+                cells.forEach(cell => {
+                    html += '<td>' + formatInlineMarkdown(cell) + '</td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+
+            return html;
         }
 
         // Escape HTML
