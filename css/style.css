@@ -4723,9 +4723,10 @@ input:focus-visible {
     gap: var(--u-space-2);
     background: var(--u-color-bg-secondary);
     border: 1px solid var(--u-color-border);
-    border-radius: var(--u-radius-full);
-    padding: var(--u-space-1) var(--u-space-2) var(--u-space-1) var(--u-space-4);
+    border-radius: var(--u-radius-lg);
+    padding: var(--u-space-2) var(--u-space-2) var(--u-space-2) var(--u-space-4);
     transition: var(--u-transition);
+    max-height: 120px;
 }
 
 .ask-ai-input-wrapper:focus-within {
@@ -4741,10 +4742,12 @@ input:focus-visible {
     color: var(--u-color-text-main);
     resize: none;
     min-height: 24px;
-    max-height: 100px;
+    max-height: 80px;
     line-height: 1.5;
     padding: var(--u-space-1) 0;
     font-family: var(--u-font-sans);
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
 .ask-ai-input::placeholder {

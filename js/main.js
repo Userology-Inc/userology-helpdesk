@@ -2265,7 +2265,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const ASK_AI_CONFIG = {
         storageKey: 'userology-ai-chat',
         maxHistoryItems: 10,
-        apiEndpoint: '/api/chat', // Backend endpoint - to be implemented by colleague
+        // Cloudflare Worker URL - UPDATE THIS after deploying your worker
+        // Deploy: cd cloudflare-worker && wrangler deploy
+        // Then update the URL to: https://userology-ai-assistant.YOUR_SUBDOMAIN.workers.dev
+        workerUrl: 'https://userology-ai-assistant.farhan-7be.workers.dev',
         suggestedQuestions: [
             'How do I create a new study?',
             'How do I set up an AI moderator?',
@@ -2323,6 +2326,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             placeholder="Ask me anything..."
                             rows="1"
                             aria-label="Type your message"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
                         ></textarea>
                         <button class="ask-ai-send-btn" id="askAiSend" aria-label="Send message" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -2698,29 +2705,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Call AI API (placeholder implementation)
+        // Call AI API via Cloudflare Worker
         async function callAiApi(message) {
-            // Simulate API delay for now
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            try {
+                // Prepare conversation history for context (exclude system messages)
+                const conversationHistory = currentConversation
+                    .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+                    .slice(-10) // Last 10 messages for context
+                    .map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
 
-            // Placeholder response - will be replaced with actual API call
-            // Your colleague will implement the backend endpoint
-            const placeholderResponses = {
-                'study': 'To **create a new study** in Userology, follow these steps:\n\n- Go to your Dashboard\n- Click the "New Study" button\n- Choose your study type (Usability Test, Prototype Test, or Interview)\n- Define your objectives and target audience\n- Build your discussion guide\n\nFor detailed instructions, check out our [Study Setup Guide](article_25457016697629.html).',
-                'moderator': 'The **AI Moderator** in Userology can be configured to:\n\n- Ask follow-up questions automatically\n- Probe deeper on specific topics\n- Maintain a consistent interview style\n\nYou can adjust the moderator\'s persona, tone, and probing behavior in the Study Settings. Learn more in our [AI Moderator Configuration](article_25457033877533.html) article.',
-                'recording': 'Your **recordings** can be found in the Recordings tab of your study. From there you can:\n\n- Watch participant sessions\n- View AI-generated transcripts\n- Create clips and highlights\n- Use Ask AI to analyze specific responses\n\nSee our [Recordings Guide](article_recordings.html) for more details.',
-                'synthesis': 'The **AI Synthesis Studio** allows you to analyze data across multiple studies. You can:\n\n- Chat with your data using natural language\n- Generate comprehensive reports\n- Find patterns across participant responses\n- Export insights for stakeholders\n\nLearn more in our [AI Synthesis Studio Guide](article_ai_synthesis_studio.html).'
-            };
+                const response = await fetch(ASK_AI_CONFIG.workerUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userMessage: message,
+                        messages: conversationHistory.slice(0, -1) // Exclude the message we just added
+                    })
+                });
 
-            // Simple keyword matching for demo
-            const lowerMessage = message.toLowerCase();
-            for (const [keyword, response] of Object.entries(placeholderResponses)) {
-                if (lowerMessage.includes(keyword)) {
-                    return response;
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('AI API error:', response.status, errorData);
+                    throw new Error(errorData.error || 'Failed to get AI response');
                 }
-            }
 
-            return 'I can help you with questions about Userology! Try asking about:\n\n- Creating and setting up studies\n- Configuring the AI moderator\n- Finding and analyzing recordings\n- Using the AI Synthesis Studio\n\nWhat would you like to know more about?';
+                const data = await response.json();
+
+                if (data.success && data.response) {
+                    return data.response;
+                } else {
+                    throw new Error(data.error || 'Invalid response from AI service');
+                }
+            } catch (error) {
+                console.error('callAiApi error:', error);
+                // Return a helpful error message instead of throwing
+                return 'I apologize, but I\'m having trouble connecting to the AI service right now. Please try again in a moment, or contact **support@userology.co** for assistance.';
+            }
         }
 
         // Update send button state
@@ -2731,7 +2756,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-resize textarea
         function autoResizeInput() {
             input.style.height = 'auto';
-            input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+            input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+
+            // Limit input length to prevent accidental paste of long content
+            const maxLength = 500;
+            if (input.value.length > maxLength) {
+                input.value = input.value.substring(0, maxLength);
+            }
         }
 
         // Toggle panel
