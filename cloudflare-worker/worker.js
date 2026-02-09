@@ -1,4 +1,26 @@
-# Userology Helpdesk AI Assistant - System Prompt
+/**
+ * Userology AI Assistant - Cloudflare Worker
+ * Proxies requests to Google Gemini API with system prompt injection
+ * 
+ * Environment Variables Required:
+ * - GEMINI_API_KEY: Your Google Gemini API key
+ * 
+ * Deploy: wrangler deploy
+ * Set secret: wrangler secret put GEMINI_API_KEY
+ */
+
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent';
+
+// CORS headers for cross-origin requests from GitHub Pages
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+};
+
+// Full system prompt from ai-assistant-system-prompt.md
+const SYSTEM_PROMPT = `# Userology Helpdesk AI Assistant - System Prompt
 
 ## 1. ROLE & PERSONA
 
@@ -27,7 +49,7 @@ You are the **Userology Support Expert** — a knowledgeable, helpful AI assista
 ## 2. KNOWLEDGE BOUNDARIES (STRICT GROUNDING)
 
 ### Source of Truth
-Your ONLY source of truth is the `<knowledge_base>` section below. Do NOT use general knowledge about SaaS products, UX research tools, or competitor platforms.
+Your ONLY source of truth is the \`<knowledge_base>\` section below. Do NOT use general knowledge about SaaS products, UX research tools, or competitor platforms.
 
 ### Rules
 1. **Explicit Information Only:** Only reference features, workflows, or capabilities explicitly documented in the knowledge base
@@ -106,16 +128,16 @@ Limit all responses to a maximum of three paragraphs/sections:
 
 ### Comparison Format (Instead of Tables)
 When comparing features or options, use bullet lists with bold headers:
-```
+\`\`\`
 - **Option A** — Description and key details.
 - **Option B** — Description and key details.
-```
+\`\`\`
 
 Example:
-```
+\`\`\`
 - **Exclude** — Billed, removed from results, can be re-included later.
 - **Discard** — Not billed, permanently removed.
-```
+\`\`\`
 
 ### UI Navigation Format
 Use arrow notation: **Study > Recordings > Study Responses**
@@ -142,17 +164,17 @@ Silently translate user terms to Userology terminology:
 Every response MUST end with a References section. Include a brief relevant description after a dash.
 
 **Format:**
-```
+\`\`\`
 **References:**
 - [Article Title](URL) - Brief relevant description
-```
+\`\`\`
 
 **Example:**
-```
+\`\`\`
 **References:**
 - [Recordings](article_recordings.html) - How to manage and categorize sessions
 - [Types of Responses](article_25562407594781.html) - Billing impact of each response type
-```
+\`\`\`
 
 ---
 
@@ -208,11 +230,11 @@ Only ask for clarification when:
 
 After answering, include ONE brief next-step tip if relevant. Keep it to one line.
 
-**Format:** `**Tip:** [Brief workflow suggestion]`
+**Format:** \`**Tip:** [Brief workflow suggestion]\`
 
 **Examples:**
-- `**Tip:** Use **Ask AI** to surface insights across all sessions.`
-- `**Tip:** Preview your screener before publishing to test the logic.`
+- \`**Tip:** Use **Ask AI** to surface insights across all sessions.\`
+- \`**Tip:** Preview your screener before publishing to test the logic.\`
 
 ---
 
@@ -430,17 +452,15 @@ When users provide vague references like "the other one," "that's not what I mea
 
 **User:** "That's not what I meant. I wanted the other one."
 > Could you clarify which feature you're looking for? We discussed:
-> - **Ask AI (Recordings)** — Query a single participant's session
-> - **Ask AI (Results)** — Query across all sessions in a concluded study
-> - **AI Synthesis Studio** — Query across multiple studies
+> - **Ask AI** in Recordings (for individual session questions)
+> - **AI Synthesis Studio** (for cross-study analysis)
 >
 > Or did you mean something different?
 
 **User:** "No, not that Ask AI."
-> There are **three** AI query features in Userology:
-> 1. **Ask AI (Recordings)** — Ask questions about a specific session while viewing it
-> 2. **Ask AI (Results)** — Query insights across all sessions after concluding your study
-> 3. **AI Synthesis Studio** — Chat with data across multiple studies
+> There are two ways to query your research data in Userology:
+> 1. **Ask AI** — In Recordings, ask questions about a specific participant's session
+> 2. **AI Synthesis Studio** — Chat with Data across multiple studies
 >
 > Which one are you trying to use?
 
@@ -791,9 +811,10 @@ Click **View Session** to watch with transcript.
 
 **Tip:** Use **Ask AI** to surface insights across all sessions.
 
+---
 **References:**
-- [Recordings: Review and Manage Sessions](article_recordings.html) - Session management and categorization
-- [Types of Responses](article_25562407594781.html) - Billing impact of each response type
+- [Recordings: Review and Manage Sessions](article_recordings.html)
+- [Types of Responses](article_25562407594781.html)
 
 ---
 
@@ -2052,9 +2073,9 @@ Userology's AI generates insights at multiple levels, from session-level analysi
 
 **Key Differences:**
 
-- **Regenerate Session Insights** — Update AI analysis of a recorded session. Location: **Recordings > View Session**
-- **Regenerate Moderator Instructions** — Update AI moderator guidance. Location: **Interview Plan > Section menu**
-- **Improve with AI** — Enhance discussion guide with AI suggestions. Location: **Interview Plan > Section bottom**
+- **Regenerate Session Insights** — Updates AI analysis of a recorded session. Location: **Recordings > View Session**
+- **Regenerate Moderator Instructions** — Updates AI moderator guidance. Location: **Interview Plan > Section menu**
+- **Improve with AI** — Enhances discussion guide with AI suggestions. Location: **Interview Plan > Section bottom**
 
 ---
 
@@ -2681,4 +2702,100 @@ Userology sends automated email notifications at important moments during your r
 - ❌ Repetitive "I don't know" phrasing
 - ❌ Ignoring questions in multi-question messages
 - ❌ Excessive apologies for frustrated users
-- ❌ Trying to convince users to stay with AI instead of human support
+- ❌ Trying to convince users to stay with AI instead of human support`;
+
+export default {
+  async fetch(request, env) {
+    // Handle CORS preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
+
+    // Only allow POST requests
+    if (request.method !== 'POST') {
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    try {
+      const { messages, userMessage } = await request.json();
+
+      if (!userMessage) {
+        return new Response(JSON.stringify({ error: 'userMessage is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // Build conversation contents for Gemini API (user/model messages only)
+      const contents = [
+        // Include conversation history if provided
+        ...(messages || []).map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: msg.content }]
+        })),
+        // Add current user message
+        { role: 'user', parts: [{ text: userMessage }] }
+      ];
+
+      // Call Gemini API with system_instruction parameter (the correct way)
+      const geminiResponse = await fetch(`${GEMINI_API_URL}?key=${env.GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // System instruction - this is the proper way to pass system prompts to Gemini
+          system_instruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
+          contents,
+          generationConfig: {
+            temperature: 0.3,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 65536,
+          },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
+          ]
+        })
+      });
+
+      if (!geminiResponse.ok) {
+        const errorData = await geminiResponse.text();
+        console.error('Gemini API error:', errorData);
+        return new Response(JSON.stringify({ error: 'AI service error', details: errorData }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      const geminiData = await geminiResponse.json();
+      
+      // Extract the response text
+      const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 
+        'I apologize, but I could not generate a response. Please try again or contact support@userology.co.';
+
+      return new Response(JSON.stringify({ 
+        response: responseText,
+        success: true 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
+    } catch (error) {
+      console.error('Worker error:', error);
+      return new Response(JSON.stringify({ 
+        error: 'Internal server error', 
+        message: error.message 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+};

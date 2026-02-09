@@ -1,0 +1,28 @@
+# Userology AI Assistant - Cloudflare Worker Configuration
+name = "userology-ai-assistant"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# The GEMINI_API_KEY should be set as a secret, not as a variable
+# Run: wrangler secret put GEMINI_API_KEY
+# Then enter your Google Gemini API key when prompted
+
+# KV Namespace for storing the system prompt
+# This allows updating the prompt without redeploying the worker
+#
+# Setup instructions:
+# 1. Create KV namespace: wrangler kv:namespace create "PROMPTS"
+# 2. Copy the id from the output and paste it below
+# 3. Upload the system prompt: wrangler kv:key put --binding=PROMPTS "system-prompt" --path="./ai-assistant-system-prompt.md"
+#
+# To update the prompt later, just run step 3 again
+
+[[kv_namespaces]]
+binding = "PROMPTS"
+id = "YOUR_KV_NAMESPACE_ID"  # Replace with actual ID after running: wrangler kv:namespace create "PROMPTS"
+
+# Optional: Restrict to specific routes
+# routes = [
+#   { pattern = "api.yourdomain.com/chat", zone_name = "yourdomain.com" }
+# ]
+

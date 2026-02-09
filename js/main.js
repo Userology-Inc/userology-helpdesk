@@ -2258,4 +2258,749 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // ====================================
+    // ASK AI CHAT WIDGET
+    // ====================================
+
+    const ASK_AI_CONFIG = {
+        storageKey: 'userology-ai-chat',
+        maxHistoryItems: 10,
+        // Cloudflare Worker URL - UPDATE THIS after deploying your worker
+        // Deploy: cd cloudflare-worker && wrangler deploy
+        // Then update the URL to: https://userology-ai-assistant.YOUR_SUBDOMAIN.workers.dev
+        workerUrl: 'https://userology-ai-assistant.farhan-7be.workers.dev',
+        suggestedQuestions: [
+            'How do I create a new study?',
+            'How do I set up an AI moderator?',
+            'Where can I find my recordings?',
+            'How does the AI Synthesis Studio work?'
+        ]
+    };
+
+    // Create and inject the chat widget HTML
+    function createAskAiWidget() {
+        const widget = document.createElement('div');
+        widget.id = 'askAiWidget';
+        widget.innerHTML = `
+            <!-- Floating Action Button -->
+            <button class="ask-ai-fab" id="askAiFab" aria-label="Open AI Assistant">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+            </button>
+
+            <!-- Chat Panel -->
+            <div class="ask-ai-panel" id="askAiPanel" role="dialog" aria-labelledby="askAiTitle">
+                <!-- Header - Minimal with only action buttons -->
+                <div class="ask-ai-header">
+                    <div class="ask-ai-header-actions">
+                        <button class="ask-ai-header-btn" id="askAiNewChat" aria-label="New chat" title="New chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <button class="ask-ai-header-btn" id="askAiHistory" aria-label="Chat history" title="Chat history">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <button class="ask-ai-header-btn" id="askAiClose" aria-label="Close chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="ask-ai-messages" id="askAiMessages">
+                    <!-- Welcome message will be inserted here -->
+                </div>
+
+                <!-- Input Area -->
+                <div class="ask-ai-input-area">
+                    <div class="ask-ai-input-wrapper">
+                        <textarea
+                            class="ask-ai-input"
+                            id="askAiInput"
+                            placeholder="Ask me anything..."
+                            rows="1"
+                            aria-label="Type your message"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false"
+                        ></textarea>
+                        <button class="ask-ai-send-btn" id="askAiSend" aria-label="Send message" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="ask-ai-footer">
+                    AI can make mistakes. Verify important information.
+                </div>
+
+                <!-- History Panel (slides in from left) -->
+                <div class="ask-ai-history-panel" id="askAiHistoryPanel">
+                    <div class="ask-ai-history-header">
+                        <button class="ask-ai-history-back" id="askAiHistoryBack" aria-label="Back to chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h3 class="ask-ai-history-title">Recent Chats</h3>
+                        <button class="ask-ai-header-btn" id="askAiHistoryNewChat" aria-label="New chat">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        <button class="ask-ai-header-btn" id="askAiHistoryClose" aria-label="Close">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="ask-ai-history-list" id="askAiHistoryList">
+                        <div class="ask-ai-history-notice">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>History is saved locally and will clear once you close your browser session.</span>
+                        </div>
+                        <!-- History items will be inserted here -->
+                    </div>
+                    <div class="ask-ai-history-footer">
+                        <button class="ask-ai-new-chat-btn" id="askAiStartNewChat">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Start New Chat
+                        </button>
+                        <div class="ask-ai-history-footer-text">Session-only history</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(widget);
+        return widget;
+    }
+
+    // Initialize the Ask AI widget
+    function initAskAi() {
+        const widget = createAskAiWidget();
+
+        // Elements
+        const fab = document.getElementById('askAiFab');
+        const panel = document.getElementById('askAiPanel');
+        const closeBtn = document.getElementById('askAiClose');
+        const newChatBtn = document.getElementById('askAiNewChat');
+        const historyBtn = document.getElementById('askAiHistory');
+        const historyPanel = document.getElementById('askAiHistoryPanel');
+        const historyBack = document.getElementById('askAiHistoryBack');
+        const historyClose = document.getElementById('askAiHistoryClose');
+        const historyNewChat = document.getElementById('askAiHistoryNewChat');
+        const startNewChat = document.getElementById('askAiStartNewChat');
+        const messagesContainer = document.getElementById('askAiMessages');
+        const input = document.getElementById('askAiInput');
+        const sendBtn = document.getElementById('askAiSend');
+
+        // State
+        let isOpen = false;
+        let isHistoryOpen = false;
+        let currentConversation = [];
+        let conversations = [];
+        let currentConversationId = null;
+        let isWaitingForResponse = false;
+
+        // Load state from storage
+        function loadState() {
+            try {
+                const stored = sessionStorage.getItem(ASK_AI_CONFIG.storageKey);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    conversations = data.conversations || [];
+                    currentConversationId = data.currentConversationId;
+                    if (currentConversationId) {
+                        const conv = conversations.find(c => c.id === currentConversationId);
+                        if (conv) {
+                            currentConversation = conv.messages;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load Ask AI state:', e);
+            }
+        }
+
+        // Save state to storage
+        function saveState() {
+            try {
+                // Update current conversation in list
+                if (currentConversationId && currentConversation.length > 0) {
+                    const index = conversations.findIndex(c => c.id === currentConversationId);
+                    const convData = {
+                        id: currentConversationId,
+                        title: getConversationTitle(currentConversation),
+                        messages: currentConversation,
+                        updatedAt: new Date().toISOString()
+                    };
+                    if (index >= 0) {
+                        conversations[index] = convData;
+                    } else {
+                        conversations.unshift(convData);
+                    }
+                    // Limit history
+                    conversations = conversations.slice(0, ASK_AI_CONFIG.maxHistoryItems);
+                }
+
+                sessionStorage.setItem(ASK_AI_CONFIG.storageKey, JSON.stringify({
+                    conversations,
+                    currentConversationId
+                }));
+            } catch (e) {
+                console.warn('Failed to save Ask AI state:', e);
+            }
+        }
+
+        // Get conversation title from first user message
+        function getConversationTitle(messages) {
+            const firstUserMsg = messages.find(m => m.role === 'user');
+            if (firstUserMsg) {
+                return firstUserMsg.content.substring(0, 50) + (firstUserMsg.content.length > 50 ? '...' : '');
+            }
+            return 'New conversation';
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Format relative time
+        function formatRelativeTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Render welcome message
+        function renderWelcome() {
+            messagesContainer.innerHTML = `
+                <div class="ask-ai-welcome">
+                    <div class="ask-ai-welcome-icon">
+                        <img src="logo.png" alt="Userology">
+                    </div>
+                    <h3 class="ask-ai-welcome-title">Ask Userology AI</h3>
+                    <p class="ask-ai-welcome-text">
+                        Ask me anything about our platform—from setting up research studies to configuring advanced settings.
+                    </p>
+                    <div class="ask-ai-suggestions">
+                        ${ASK_AI_CONFIG.suggestedQuestions.map(q => `
+                            <button class="ask-ai-suggestion" data-question="${q}">${q}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Add click handlers for suggestions
+            messagesContainer.querySelectorAll('.ask-ai-suggestion').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent click-outside from closing panel
+                    const question = btn.dataset.question;
+                    input.value = question;
+                    sendMessage();
+                });
+            });
+        }
+
+        // Render messages
+        function renderMessages() {
+            if (currentConversation.length === 0) {
+                renderWelcome();
+                return;
+            }
+
+            messagesContainer.innerHTML = currentConversation.map((msg, index) => `
+                <div class="ask-ai-message ${msg.role}">
+                    <div class="ask-ai-message-avatar">
+                        ${msg.role === 'assistant' ? `
+                            <img src="logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain;">
+                        ` : `
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        `}
+                    </div>
+                    <div class="ask-ai-message-body">
+                        <div class="ask-ai-message-content">${msg.role === 'assistant' ? formatAiResponse(msg.content) : escapeHtml(msg.content)}</div>
+                        ${msg.role === 'assistant' ? `
+                            <div class="ask-ai-message-actions">
+                                <button class="ask-ai-copy-btn" data-index="${index}" aria-label="Copy response">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers for copy buttons
+            messagesContainer.querySelectorAll('.ask-ai-copy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    const message = currentConversation[index];
+                    if (message) {
+                        navigator.clipboard.writeText(message.content).then(() => {
+                            // Show copied feedback
+                            btn.classList.add('copied');
+                            btn.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            `;
+                            setTimeout(() => {
+                                btn.classList.remove('copied');
+                                btn.innerHTML = `
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                `;
+                            }, 2000);
+                        });
+                    }
+                });
+            });
+
+            scrollToBottom();
+        }
+
+        // Format AI response (markdown to HTML)
+        function formatAiResponse(text) {
+            const lines = text.split('\n');
+            const processedLines = [];
+            let inList = false;
+            let listType = null;
+            let inReferences = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+
+                // Skip empty lines, separators, and table syntax lines
+                if (line.trim() === '' || line.trim() === '---' ||
+                    line.match(/^\|[\s:-]+\|/) || line.includes('| :---')) {
+                    if (inList) {
+                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        inList = false;
+                        listType = null;
+                    }
+                    continue;
+                }
+
+                // Check for References section
+                if (line.match(/^\*\*References:?\*\*$/i) || line.match(/^References:?$/i)) {
+                    if (inList) {
+                        processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        inList = false;
+                        listType = null;
+                    }
+                    inReferences = true;
+                    processedLines.push('<div class="ai-references">');
+                    processedLines.push('<span class="ai-references-title">References:</span>');
+                    continue;
+                }
+
+                // Format inline markdown (bold, links, italic)
+                line = formatInlineMarkdown(line);
+
+                // Numbered list item (1. 2. etc.)
+                const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/);
+                if (numberedMatch) {
+                    if (!inList || listType !== 'ol') {
+                        if (inList) processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        processedLines.push('<ol class="ai-list">');
+                        inList = true;
+                        listType = 'ol';
+                    }
+                    processedLines.push('<li>' + numberedMatch[2] + '</li>');
+                    continue;
+                }
+
+                // Bullet list item (- or *)
+                const bulletMatch = line.match(/^[-*]\s+(.+)$/);
+                if (bulletMatch) {
+                    if (!inList || listType !== 'ul') {
+                        if (inList) processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        processedLines.push(inReferences ? '<ul class="ai-references-list">' : '<ul class="ai-list">');
+                        inList = true;
+                        listType = 'ul';
+                    }
+                    processedLines.push('<li>' + bulletMatch[1] + '</li>');
+                    continue;
+                }
+
+                // Regular paragraph text
+                if (inList) {
+                    processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+                    inList = false;
+                    listType = null;
+                }
+                processedLines.push('<p class="ai-paragraph">' + line + '</p>');
+            }
+
+            // Close any open tags
+            if (inList) {
+                processedLines.push(listType === 'ul' ? '</ul>' : '</ol>');
+            }
+            if (inReferences) {
+                processedLines.push('</div>');
+            }
+
+            return processedLines.join('');
+        }
+
+        // Format inline markdown (bold, italic, links)
+        function formatInlineMarkdown(text) {
+            // Bold text **text**
+            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // Italic text *text*
+            text = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+            // Links [text](url)
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="ai-link">$1</a>');
+            return text;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typing = document.createElement('div');
+            typing.className = 'ask-ai-typing';
+            typing.id = 'askAiTyping';
+            typing.innerHTML = `
+                <div class="ask-ai-typing-avatar">
+                    <img src="logo.png" alt="AI" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div class="ask-ai-typing-dots">
+                    <span class="ask-ai-typing-dot"></span>
+                    <span class="ask-ai-typing-dot"></span>
+                    <span class="ask-ai-typing-dot"></span>
+                </div>
+            `;
+            messagesContainer.appendChild(typing);
+            scrollToBottom();
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typing = document.getElementById('askAiTyping');
+            if (typing) typing.remove();
+        }
+
+        // Scroll to bottom of messages
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Send message
+        async function sendMessage() {
+            const message = input.value.trim();
+            if (!message || isWaitingForResponse) return;
+
+            // Create new conversation if needed
+            if (!currentConversationId) {
+                currentConversationId = generateId();
+            }
+
+            // Add user message
+            currentConversation.push({
+                id: generateId(),
+                role: 'user',
+                content: message,
+                timestamp: new Date().toISOString()
+            });
+
+            // Clear input and render
+            input.value = '';
+            updateSendButton();
+            autoResizeInput();
+            renderMessages();
+
+            // Show typing indicator
+            isWaitingForResponse = true;
+            showTypingIndicator();
+            input.disabled = true;
+
+            try {
+                // Call API (placeholder - will be implemented by backend colleague)
+                const response = await callAiApi(message);
+
+                // Add AI response
+                currentConversation.push({
+                    id: generateId(),
+                    role: 'assistant',
+                    content: response,
+                    timestamp: new Date().toISOString()
+                });
+
+                saveState();
+            } catch (error) {
+                console.error('Ask AI error:', error);
+                currentConversation.push({
+                    id: generateId(),
+                    role: 'assistant',
+                    content: 'I apologize, but I encountered an error. Please try again or contact support@userology.co for assistance.',
+                    timestamp: new Date().toISOString()
+                });
+            } finally {
+                isWaitingForResponse = false;
+                hideTypingIndicator();
+                input.disabled = false;
+                input.focus();
+                renderMessages();
+            }
+        }
+
+        // Call AI API via Cloudflare Worker
+        async function callAiApi(message) {
+            try {
+                // Prepare conversation history for context (exclude system messages)
+                const conversationHistory = currentConversation
+                    .filter(msg => msg.role === 'user' || msg.role === 'assistant')
+                    .slice(-10) // Last 10 messages for context
+                    .map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
+
+                const response = await fetch(ASK_AI_CONFIG.workerUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userMessage: message,
+                        messages: conversationHistory.slice(0, -1) // Exclude the message we just added
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('AI API error:', response.status, errorData);
+                    throw new Error(errorData.error || 'Failed to get AI response');
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.response) {
+                    return data.response;
+                } else {
+                    throw new Error(data.error || 'Invalid response from AI service');
+                }
+            } catch (error) {
+                console.error('callAiApi error:', error);
+                // Return a helpful error message instead of throwing
+                return 'I apologize, but I\'m having trouble connecting to the AI service right now. Please try again in a moment, or contact **support@userology.co** for assistance.';
+            }
+        }
+
+        // Update send button state
+        function updateSendButton() {
+            sendBtn.disabled = !input.value.trim() || isWaitingForResponse;
+        }
+
+        // Auto-resize textarea
+        function autoResizeInput() {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+
+            // Limit input length to prevent accidental paste of long content
+            const maxLength = 500;
+            if (input.value.length > maxLength) {
+                input.value = input.value.substring(0, maxLength);
+            }
+        }
+
+        // Toggle panel
+        function togglePanel() {
+            isOpen = !isOpen;
+            panel.classList.toggle('active', isOpen);
+            fab.classList.toggle('active', isOpen);
+            fab.classList.toggle('hidden', isOpen); // Hide FAB when panel is open
+
+            if (isOpen) {
+                input.focus();
+                if (currentConversation.length === 0) {
+                    renderWelcome();
+                }
+            }
+        }
+
+        // Close panel
+        function closePanel() {
+            isOpen = false;
+            panel.classList.remove('active');
+            fab.classList.remove('active');
+            fab.classList.remove('hidden'); // Show FAB when panel closes
+            closeHistoryPanel();
+        }
+
+        // Start new chat
+        function startNewConversation() {
+            // Save current conversation first
+            if (currentConversation.length > 0) {
+                saveState();
+            }
+
+            currentConversationId = null;
+            currentConversation = [];
+            renderWelcome();
+            closeHistoryPanel();
+            input.focus();
+        }
+
+        // Open history panel
+        function openHistoryPanel() {
+            isHistoryOpen = true;
+            historyPanel.classList.add('active');
+            renderHistoryList();
+        }
+
+        // Close history panel
+        function closeHistoryPanel() {
+            isHistoryOpen = false;
+            historyPanel.classList.remove('active');
+        }
+
+        // Render history list
+        function renderHistoryList() {
+            const listContainer = document.getElementById('askAiHistoryList');
+            const notice = listContainer.querySelector('.ask-ai-history-notice');
+
+            // Remove old items (keep notice)
+            listContainer.querySelectorAll('.ask-ai-history-item').forEach(el => el.remove());
+            listContainer.querySelectorAll('.ask-ai-history-empty').forEach(el => el.remove());
+
+            if (conversations.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'ask-ai-history-empty';
+                empty.textContent = 'No chat history yet. Start a conversation!';
+                listContainer.appendChild(empty);
+                return;
+            }
+
+            conversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = 'ask-ai-history-item';
+                item.dataset.id = conv.id;
+                item.innerHTML = `
+                    <div class="ask-ai-history-item-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <div class="ask-ai-history-item-content">
+                        <div class="ask-ai-history-item-title">${escapeHtml(conv.title)}</div>
+                        <div class="ask-ai-history-item-time">${formatRelativeTime(conv.updatedAt)}</div>
+                    </div>
+                    <div class="ask-ai-history-item-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                `;
+
+                item.addEventListener('click', () => {
+                    loadConversation(conv.id);
+                });
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        // Load a conversation from history
+        function loadConversation(convId) {
+            const conv = conversations.find(c => c.id === convId);
+            if (conv) {
+                currentConversationId = conv.id;
+                currentConversation = [...conv.messages];
+                renderMessages();
+                closeHistoryPanel();
+            }
+        }
+
+        // Event listeners
+        fab.addEventListener('click', togglePanel);
+        closeBtn.addEventListener('click', closePanel);
+        newChatBtn.addEventListener('click', startNewConversation);
+        historyBtn.addEventListener('click', openHistoryPanel);
+        historyBack.addEventListener('click', closeHistoryPanel);
+        historyClose.addEventListener('click', closePanel);
+        historyNewChat.addEventListener('click', startNewConversation);
+        startNewChat.addEventListener('click', startNewConversation);
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        input.addEventListener('input', () => {
+            updateSendButton();
+            autoResizeInput();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Close on ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isOpen) {
+                if (isHistoryOpen) {
+                    closeHistoryPanel();
+                } else {
+                    closePanel();
+                }
+            }
+        });
+
+        // Close on click outside
+        document.addEventListener('click', (e) => {
+            if (isOpen && !panel.contains(e.target) && !fab.contains(e.target)) {
+                closePanel();
+            }
+        });
+
+        // Load initial state
+        loadState();
+        if (currentConversation.length > 0) {
+            renderMessages();
+        } else {
+            renderWelcome();
+        }
+
+        console.log('Ask AI widget initialized');
+    }
+
+    // Initialize Ask AI widget
+    initAskAi();
 });
