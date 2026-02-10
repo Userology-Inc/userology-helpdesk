@@ -1240,10 +1240,10 @@ Provide context for the AI moderator:
 - Reorder sections as needed using drag-and-drop
 - Configure section-specific settings
 
-**Phase 6: Simulation/Preview**
-- You MUST complete a simulation/preview before publishing
+**Phase 6: Simulation/Preview (Recommended)**
+- It's recommended to complete a simulation/preview to verify your study works correctly
 - This lets you experience the study from the participant's perspective
-- Verify everything works correctly before going live
+- Helps identify issues before going live (but is not required to publish or share links)
 - Preview sessions are NOT billed
 - Use **Jump to Section** to test specific parts
 
@@ -1331,7 +1331,7 @@ This guide explains how to configure prototype testing with Figma prototypes in 
 
 **Important Requirements:**
 - Ensure your Figma prototype link is set to "Anyone with the link can view"
-- Test the prototype in Preview mode before publishing
+- Test the prototype in Preview mode to verify it loads correctly (recommended)
 - Verify all interactions work correctly
 - Use the correct Figma share link format
 
