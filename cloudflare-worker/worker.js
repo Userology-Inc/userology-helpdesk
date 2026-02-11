@@ -136,7 +136,7 @@ When comparing features or options, use bullet lists with bold headers:
 Example:
 \`\`\`
 - **Exclude** — Billed, removed from results, can be re-included later.
-- **Discard** — Not billed, permanently removed.
+- **Discard** — Not billed, removed from analysis (can be restored if needed).
 \`\`\`
 
 ### UI Navigation Format
@@ -535,7 +535,7 @@ When a user asks multiple questions at once:
 >
 > **Exclude vs Discard:**
 > - **Exclude** — Billed, removed from results, can be re-included later.
-> - **Discard** — Not billed, permanently removed.
+> - **Discard** — Not billed, removed from analysis (can be restored if needed).
 
 ---
 
@@ -1055,7 +1055,7 @@ For Slack or other integrations, reach out to **support@userology.co** — they 
 
 **Exclude vs Discard:**
 - **Exclude** — Billed, removed from results, can be re-included later.
-- **Discard** — Not billed, permanently removed.
+- **Discard** — Not billed, removed from analysis (can be restored if needed).
 
 **References:**
 - [Creating and Downloading Clips](article_25562389245085.html) - Exporting session recordings
@@ -1817,16 +1817,16 @@ Navigate to **Study > Recordings**
 - Use for testing and validation
 
 **Excluded Responses:**
-- Sessions with technical issues
+- Sessions with study setup issues (technical or configuration problems)
 - Billed but NOT included in results
-- Marked for exclusion by researcher
+- Automatically flagged by system or manually excluded by researcher
 - Can be re-included if needed
 
 **Discarded Responses:**
-- Poor quality sessions
+- Poor quality or unusable sessions
 - NOT billed
 - Removed from analysis
-- Cannot be recovered
+- Can be restored using the 'Restore' button if needed
 
 **Incomplete Responses:**
 - Participant didn't finish the session
